@@ -6,4 +6,13 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\TransactionFlow.Core\TransactionFlow.Core.csproj" />
+      <ProjectReference Include="..\TransactionFlow.DataAccess\TransactionFlow.DataAccess.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Autofac" Version="7.1.0" />
+    </ItemGroup>
+
 </Project>
