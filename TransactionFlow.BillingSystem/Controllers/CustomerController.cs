@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Entities.Concrete;
@@ -23,9 +24,35 @@ public class CustomerController:ControllerBase
         var result = _customerService.Add(customer);
         if (!result.Success)
         {
-            return BadRequest();
+            return BadRequest(result.Message);
         }
 
         return Ok();
+    }
+
+    [Route("addCustomerAsync")]
+    [HttpPost]
+    public async Task<IActionResult> AddCustomerAsync(Customer customer)
+    {
+        var result = await _customerService.AddAsync(customer);
+        if (!result.Success)
+        {
+            return BadRequest(result.Message);
+        }
+
+        return Ok();
+    }
+
+    [HttpGet]
+    [Route(nameof(GetCustomerById))]
+    public IActionResult GetCustomerById(int id)
+    {
+        var result = _customerService.GetCustomerById(id);
+        if (!result.Success)
+        {
+            return BadRequest(result.Message);
+        }
+
+        return Ok(result.Data);
     }
 }

@@ -14,4 +14,8 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="CrossCuttingConcerns\Logging\Log4Net\" />
+    </ItemGroup>
+
 </Project>
