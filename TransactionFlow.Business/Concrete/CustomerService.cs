@@ -1,7 +1,9 @@
 using System.ComponentModel;
-using Microsoft.EntityFrameworkCore;
+using log4net;
 using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Business.Constants;
+using TransactionFlow.Core.Aspects.Postsharp.LogAspects;
+using TransactionFlow.Core.CrossCuttingConcerns.Logging.Log4Net.Loggers;
 using TransactionFlow.Core.Utilities.Results;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.Entities.Concrete;
@@ -10,7 +12,8 @@ namespace TransactionFlow.Business.Concrete;
 
 public class CustomerService:ICustomerService
 {
-    private ICustomerDal _customerDal;
+    private readonly ICustomerDal _customerDal;
+    //private static readonly ILog _log = LogManager.GetLogger(typeof(CustomerService));
 
     public CustomerService(ICustomerDal customerDal)
     {
@@ -22,6 +25,7 @@ public class CustomerService:ICustomerService
         return new SuccessDataResult<List<Customer>>(_customerDal.GetList());
     }
 
+    //[LogAspect(typeof(FileLogger))]
     public IResult Add(Customer customer)
     {
         if (customer == null)
@@ -83,36 +87,56 @@ public class CustomerService:ICustomerService
     }
 
     //To add a customer asynchronously.
-    public async Task<IResult> AddAsync(Customer customer)
+    public async Task<IDataResult<Customer>> AddAsync(Customer customer)
     {
         if (customer == null)
-            return new ErrorResult(ErrorMessages.NullObjectEntered);
-        await _customerDal.AddAsync(customer);
-        return new SuccessResult(InfoMessages.ItemAdded);
+            return new ErrorDataResult<Customer>(ErrorMessages.NullObjectEntered);
+        var createdCustomer = await _customerDal.AddAsync(customer);
+        return new SuccessDataResult<Customer>(createdCustomer,InfoMessages.ItemAdded);
     }
-    
 
+    public async Task<IDataResult<Customer>> DeleteCustomerAsync(Customer customer)
+    {
+        if (customer == null)
+            return new ErrorDataResult<Customer>(ErrorMessages.NullObjectEntered);
+        try
+        {
+            await _customerDal.DeleteAsync(customer);
+            return new SuccessDataResult<Customer>(customer);
+        }
+        catch (Exception)
+        {
+            return new ErrorDataResult<Customer>(ErrorMessages.OperationFailed);
+        }
+    }
+
+    public async Task<IDataResult<Customer>> DeleteCustomerAsync(int customerId)
+    {
+        if (customerId <= 0)
+            return new ErrorDataResult<Customer>(ErrorMessages.IndexOutOfTheRange);
+        var customer = await _customerDal.GetAsync(c => c.Id == customerId);
+        if (customer == null)
+            return new ErrorDataResult<Customer>(ErrorMessages.ObjectNotFound);
+        try
+        {
+            await _customerDal.DeleteAsync(customer);
+            return new SuccessDataResult<Customer>(customer);
+        }
+        catch (Exception)
+        {
+            return new ErrorDataResult<Customer>(ErrorMessages.OperationFailed);
+        }
+    }
+
+    //[LogAspect(typeof(FileLogger))]
     public IDataResult<Customer> GetCustomerById(int id)
     {
+        //_log.Info("This is a log message.");   
         if (id <= 0)
             return new ErrorDataResult<Customer>(ErrorMessages.IndexOutOfTheRange);
         var customer = _customerDal.Get(c => c.Id == id);
         if (customer == null)
             return new ErrorDataResult<Customer>(ErrorMessages.ObjectNotFound);
         return new SuccessDataResult<Customer>(customer);
-    }
-
-    
-    [Description(description:"Count describes last *count transaction(s)")]
-    public IDataResult<List<Transaction>> GetTransactions(Customer customer,int count)
-    {
-        if (customer == null)
-            return new ErrorDataResult<List<Transaction>>(ErrorMessages.NullObjectEntered);
-        var list = _customerDal.GetTransactions(customer,null);
-        if (list == null)
-            return new ErrorDataResult<List<Transaction>>(ErrorMessages.ObjectNotFound);
-        if (list.Count == 0)
-            return new ErrorDataResult<List<Transaction>>(InfoMessages.ZeroTransactionFound);
-        return new SuccessDataResult<List<Transaction>>(list);
     }
 }

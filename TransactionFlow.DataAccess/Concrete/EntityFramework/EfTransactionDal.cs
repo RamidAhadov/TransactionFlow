@@ -5,7 +5,7 @@ using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.DataAccess.Concrete.EntityFramework;
 
-public class EfCustomerDal:EfEntityRepositoryBase<Customer,TransactionContext>,ICustomerDal
+public class EfTransactionDal:EfEntityRepositoryBase<Transaction,TransactionContext>,ITransactionDal
 {
     public List<Transaction> GetTransactions(Customer customer, int? count)
     {

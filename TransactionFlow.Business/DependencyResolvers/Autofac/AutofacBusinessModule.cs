@@ -12,5 +12,11 @@ public class AutofacBusinessModule:Module
     {
         builder.RegisterType<EfCustomerDal>().As<ICustomerDal>();
         builder.RegisterType<CustomerService>().As<ICustomerService>();
+
+        builder.RegisterType<EfCustomerAccountDal>().As<ICustomerAccountDal>();
+        builder.RegisterType<CustomerAccountService>().As<IAccountService>();
+        
+        builder.RegisterType<EfTransactionDal>().As<ITransactionDal>();
+        //builder.RegisterType<>().As<>();
     }
 }

@@ -3,7 +3,7 @@ using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.DataAccess.Abstraction;
 
-public interface ICustomerDal:IEntityRepository<Customer>
+public interface ITransactionDal:IEntityRepository<Transaction>
 {
     List<Transaction> GetTransactions(Customer customer, int? count);
     List<Transaction> GetSentTransactions(Customer customer, int? count);

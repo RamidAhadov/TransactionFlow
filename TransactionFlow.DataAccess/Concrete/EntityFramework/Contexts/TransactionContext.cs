@@ -16,8 +16,10 @@ public class TransactionContext:DbContext
     {
         modelBuilder.Entity<Customer>().HasKey(c => c.Id);
         modelBuilder.Entity<Transaction>().HasKey(t => t.Id);
+        modelBuilder.Entity<CustomerAccount>().HasKey(ca => ca.AccountId);
     }
 
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
+    public DbSet<CustomerAccount> CustomerAccounts { get; set; }
 }

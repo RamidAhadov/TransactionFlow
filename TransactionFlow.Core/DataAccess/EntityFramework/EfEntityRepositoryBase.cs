@@ -61,27 +61,30 @@ where TContext: DbContext, new()
         return await context.Set<TEntity>().SingleOrDefaultAsync(filter).ConfigureAwait(false);
     }
 
-    public async Task AddAsync(TEntity entity)
+    public async Task<TEntity> AddAsync(TEntity entity)
     {
         await using var context = new TContext();
         var addedEntity = context.Entry(entity);
         addedEntity.State = EntityState.Added;
         await context.SaveChangesAsync();
+        return entity;
     }
 
-    public async Task UpdateAsync(TEntity entity)
+    public async Task<TEntity> UpdateAsync(TEntity entity)
     {
         await using var context = new TContext();
         var modifiedEntity = context.Entry(entity);
         modifiedEntity.State = EntityState.Modified;
         await context.SaveChangesAsync();
+        return entity;
     }
 
-    public async Task DeleteAsync(TEntity entity)
+    public async Task<TEntity> DeleteAsync(TEntity entity)
     {
         await using var context = new TContext();
         var deletedEntity = context.Entry(entity);
         deletedEntity.State = EntityState.Deleted;
         await context.SaveChangesAsync();
+        return entity;
     }
 }
