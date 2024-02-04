@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "0pLZYBF82ANAY+22qcuHt8VIgFUMk4gT12MYXsPyjhZie0SJx0fn9EjZ64S1g8bRpOgPERcJVH1MOgWeF9hGTw==",
+  "dgSpecHash": "RMDvRFQDAOx3SfUGHn0cpOyt1XtBVQRsjHHVgd8Hbie5TAxD9CVTsv+hS/U6rcLbDgCvgRrjnRDspVbndtkYeg==",
   "success": true,
   "projectFilePath": "/Users/macbook/RiderProjects/TransactionFlow/TransactionFlow.Core/TransactionFlow.Core.csproj",
   "expectedPackageFiles": [
+    "/Users/macbook/.nuget/packages/log4net/2.0.15/log4net.2.0.15.nupkg.sha512",
     "/Users/macbook/.nuget/packages/microsoft.entityframeworkcore/7.0.15/microsoft.entityframeworkcore.7.0.15.nupkg.sha512",
     "/Users/macbook/.nuget/packages/microsoft.entityframeworkcore.abstractions/7.0.15/microsoft.entityframeworkcore.abstractions.7.0.15.nupkg.sha512",
     "/Users/macbook/.nuget/packages/microsoft.entityframeworkcore.analyzers/7.0.15/microsoft.entityframeworkcore.analyzers.7.0.15.nupkg.sha512",
@@ -14,7 +15,24 @@
     "/Users/macbook/.nuget/packages/microsoft.extensions.logging/7.0.0/microsoft.extensions.logging.7.0.0.nupkg.sha512",
     "/Users/macbook/.nuget/packages/microsoft.extensions.logging.abstractions/7.0.0/microsoft.extensions.logging.abstractions.7.0.0.nupkg.sha512",
     "/Users/macbook/.nuget/packages/microsoft.extensions.options/7.0.0/microsoft.extensions.options.7.0.0.nupkg.sha512",
-    "/Users/macbook/.nuget/packages/microsoft.extensions.primitives/7.0.0/microsoft.extensions.primitives.7.0.0.nupkg.sha512"
+    "/Users/macbook/.nuget/packages/microsoft.extensions.primitives/7.0.0/microsoft.extensions.primitives.7.0.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.netcore.platforms/2.0.0/microsoft.netcore.platforms.2.0.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/postsharp/2024.0.5/postsharp.2024.0.5.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/postsharp.redist/2024.0.5/postsharp.redist.2024.0.5.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/system.configuration.configurationmanager/4.5.0/system.configuration.configurationmanager.4.5.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/system.security.accesscontrol/4.5.0/system.security.accesscontrol.4.5.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/system.security.cryptography.protecteddata/4.5.0/system.security.cryptography.protecteddata.4.5.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/system.security.permissions/4.5.0/system.security.permissions.4.5.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/system.security.principal.windows/4.5.0/system.security.principal.windows.4.5.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.windowsdesktop.app.ref/6.0.18/microsoft.windowsdesktop.app.ref.6.0.18.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.netcore.app.ref/5.0.0/microsoft.netcore.app.ref.5.0.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.windowsdesktop.app.ref/5.0.0/microsoft.windowsdesktop.app.ref.5.0.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.aspnetcore.app.ref/5.0.0/microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.windowsdesktop.app.ref/3.1.0/microsoft.windowsdesktop.app.ref.3.1.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.netcore.app.ref/3.0.0/microsoft.netcore.app.ref.3.0.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.windowsdesktop.app.ref/3.0.0/microsoft.windowsdesktop.app.ref.3.0.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.aspnetcore.app.ref/3.0.1/microsoft.aspnetcore.app.ref.3.0.1.nupkg.sha512"
   ],
   "logs": []
 }

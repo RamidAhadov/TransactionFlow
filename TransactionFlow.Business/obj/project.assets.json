@@ -62,6 +62,22 @@
           }
         }
       },
+      "log4net/2.0.15": {
+        "type": "package",
+        "dependencies": {
+          "System.Configuration.ConfigurationManager": "4.5.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/log4net.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/log4net.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Bcl.AsyncInterfaces/1.1.1": {
         "type": "package",
         "compile": {
@@ -556,7 +572,7 @@
       "Microsoft.Win32.SystemEvents/6.0.0": {
         "type": "package",
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/Microsoft.Win32.SystemEvents.dll": {
             "related": ".xml"
           }
         },
@@ -575,6 +591,47 @@
           }
         }
       },
+      "Newtonsoft.Json/13.0.3": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "PostSharp/2024.0.5": {
+        "type": "package",
+        "dependencies": {
+          "PostSharp.Redist": "2024.0.5"
+        },
+        "compile": {
+          "lib/netstandard1.0/_._": {}
+        },
+        "runtime": {
+          "lib/netstandard1.0/_._": {}
+        },
+        "build": {
+          "build/_._": {}
+        }
+      },
+      "PostSharp.Redist/2024.0.5": {
+        "type": "package",
+        "compile": {
+          "lib/net7.0/PostSharp.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net7.0/PostSharp.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "System.Configuration.ConfigurationManager/6.0.1": {
         "type": "package",
         "dependencies": {
@@ -582,7 +639,7 @@
           "System.Security.Permissions": "6.0.0"
         },
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Configuration.ConfigurationManager.dll": {
             "related": ".xml"
           }
         },
@@ -620,7 +677,7 @@
           "Microsoft.Win32.SystemEvents": "6.0.0"
         },
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Drawing.Common.dll": {
             "related": ".xml"
           }
         },
@@ -764,7 +821,7 @@
       "System.Security.AccessControl/6.0.0": {
         "type": "package",
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Security.AccessControl.dll": {
             "related": ".xml"
           }
         },
@@ -834,7 +891,7 @@
           "System.Windows.Extensions": "6.0.0"
         },
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Security.Permissions.dll": {
             "related": ".xml"
           }
         },
@@ -961,7 +1018,7 @@
           "System.Drawing.Common": "6.0.0"
         },
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Windows.Extensions.dll": {
             "related": ".xml"
           }
         },
@@ -982,7 +1039,10 @@
         "framework": ".NETCoreApp,Version=v7.0",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "7.0.15",
-          "TransactionFlow.Entities": "1.0.0"
+          "Newtonsoft.Json": "13.0.3",
+          "PostSharp": "2024.0.5",
+          "TransactionFlow.Entities": "1.0.0",
+          "log4net": "2.0.15"
         },
         "compile": {
           "bin/placeholder/TransactionFlow.Core.dll": {}
@@ -1076,6 +1136,32 @@
         "azureicon.png",
         "lib/netstandard2.0/Azure.Identity.dll",
         "lib/netstandard2.0/Azure.Identity.xml"
+      ]
+    },
+    "log4net/2.0.15": {
+      "sha512": "GahnO9ZgFka+xYcFwAfIFjW+k86P2nxFoaEpH6t3v4hiGj7tv2ksVZphxCVIHmJxoySS0HeU3dgCW+bSCcfD0A==",
+      "type": "package",
+      "path": "log4net/2.0.15",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net20/log4net.dll",
+        "lib/net20/log4net.xml",
+        "lib/net35/log4net.dll",
+        "lib/net35/log4net.xml",
+        "lib/net40-client/log4net.dll",
+        "lib/net40-client/log4net.xml",
+        "lib/net40/log4net.dll",
+        "lib/net40/log4net.xml",
+        "lib/net45/log4net.dll",
+        "lib/net45/log4net.xml",
+        "lib/netstandard1.3/log4net.dll",
+        "lib/netstandard1.3/log4net.xml",
+        "lib/netstandard2.0/log4net.dll",
+        "lib/netstandard2.0/log4net.xml",
+        "log4net.2.0.15.nupkg.sha512",
+        "log4net.nuspec",
+        "package-icon.png"
       ]
     },
     "Microsoft.Bcl.AsyncInterfaces/1.1.1": {
@@ -1867,6 +1953,113 @@
         "runtimes/win/lib/netcoreapp3.1/Microsoft.Win32.SystemEvents.dll",
         "runtimes/win/lib/netcoreapp3.1/Microsoft.Win32.SystemEvents.xml",
         "useSharedDesignerContext.txt"
+      ]
+    },
+    "Newtonsoft.Json/13.0.3": {
+      "sha512": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ==",
+      "type": "package",
+      "path": "newtonsoft.json/13.0.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "README.md",
+        "lib/net20/Newtonsoft.Json.dll",
+        "lib/net20/Newtonsoft.Json.xml",
+        "lib/net35/Newtonsoft.Json.dll",
+        "lib/net35/Newtonsoft.Json.xml",
+        "lib/net40/Newtonsoft.Json.dll",
+        "lib/net40/Newtonsoft.Json.xml",
+        "lib/net45/Newtonsoft.Json.dll",
+        "lib/net45/Newtonsoft.Json.xml",
+        "lib/net6.0/Newtonsoft.Json.dll",
+        "lib/net6.0/Newtonsoft.Json.xml",
+        "lib/netstandard1.0/Newtonsoft.Json.dll",
+        "lib/netstandard1.0/Newtonsoft.Json.xml",
+        "lib/netstandard1.3/Newtonsoft.Json.dll",
+        "lib/netstandard1.3/Newtonsoft.Json.xml",
+        "lib/netstandard2.0/Newtonsoft.Json.dll",
+        "lib/netstandard2.0/Newtonsoft.Json.xml",
+        "newtonsoft.json.13.0.3.nupkg.sha512",
+        "newtonsoft.json.nuspec",
+        "packageIcon.png"
+      ]
+    },
+    "PostSharp/2024.0.5": {
+      "sha512": "KT6XRuJXV6gllc/RVAm5jS0mfNyep5Yc/AHyOOY/80OOvQbfC7lonOH4zKDABB7n92Ifmfzclc4hdMeZ3MzEIQ==",
+      "type": "package",
+      "path": "postsharp/2024.0.5",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "THIRD-PARTY-NOTICES.html",
+        "build/PostSharp-Tools.7z",
+        "build/PostSharp.BeforeTargetFrameworkInference.targets",
+        "build/PostSharp.Version.properties",
+        "build/PostSharp.properties",
+        "build/PostSharp.props",
+        "build/PostSharp.targets",
+        "build/PostSharp.tasks",
+        "build/_common/unzipper/net472/Microsoft.Bcl.AsyncInterfaces.dll",
+        "build/_common/unzipper/net472/SharpCompress.dll",
+        "build/_common/unzipper/net472/System.Buffers.dll",
+        "build/_common/unzipper/net472/System.Memory.dll",
+        "build/_common/unzipper/net472/System.Numerics.Vectors.dll",
+        "build/_common/unzipper/net472/System.Runtime.CompilerServices.Unsafe.dll",
+        "build/_common/unzipper/net472/System.Text.Encoding.CodePages.dll",
+        "build/_common/unzipper/net472/System.Threading.Tasks.Extensions.dll",
+        "build/_common/unzipper/net472/ZstdSharp.dll",
+        "build/_common/unzipper/net472/unzipper.exe",
+        "build/_common/unzipper/net472/unzipper.exe.config",
+        "build/_common/unzipper/net472/unzipper.pdb",
+        "build/_common/unzipper/net6.0/SharpCompress.dll",
+        "build/_common/unzipper/net6.0/System.Text.Encoding.CodePages.dll",
+        "build/_common/unzipper/net6.0/ZstdSharp.dll",
+        "build/_common/unzipper/net6.0/runtimes/win/lib/net6.0/System.Text.Encoding.CodePages.dll",
+        "build/_common/unzipper/net6.0/unzipper.deps.json",
+        "build/_common/unzipper/net6.0/unzipper.dll",
+        "build/_common/unzipper/net6.0/unzipper.exe",
+        "build/_common/unzipper/net6.0/unzipper.pdb",
+        "build/_common/unzipper/net6.0/unzipper.runtimeconfig.json",
+        "build/net472/PostSharp.MSBuild.v2024.0.5.Release.dll",
+        "build/net472/PostSharp.MSBuild.v2024.0.5.Release.pdb",
+        "build/net6.0/PostSharp.MSBuild.v2024.0.5.Release.dll",
+        "build/net6.0/PostSharp.MSBuild.v2024.0.5.Release.pdb",
+        "icon.png",
+        "lib/net35-client/_._",
+        "lib/netstandard1.0/_._",
+        "postsharp.2024.0.5.nupkg.sha512",
+        "postsharp.nuspec"
+      ]
+    },
+    "PostSharp.Redist/2024.0.5": {
+      "sha512": "F2P98NSCcbz6SgRFHVq8x0Mlm4mBLCBJJ7zwd5sCM4Cw9aE1qVYQ9lMkFDUSqw/qT6UfibOwzTPbs+fSweq3MA==",
+      "type": "package",
+      "path": "postsharp.redist/2024.0.5",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "icon.png",
+        "lib/net35-client/PostSharp.dll",
+        "lib/net35-client/PostSharp.xml",
+        "lib/net45/PostSharp.dll",
+        "lib/net45/PostSharp.xml",
+        "lib/net5.0/PostSharp.dll",
+        "lib/net5.0/PostSharp.xml",
+        "lib/net6.0/PostSharp.dll",
+        "lib/net6.0/PostSharp.xml",
+        "lib/net7.0/PostSharp.dll",
+        "lib/net7.0/PostSharp.xml",
+        "lib/net8.0/PostSharp.dll",
+        "lib/net8.0/PostSharp.xml",
+        "lib/netstandard1.3/PostSharp.dll",
+        "lib/netstandard1.3/PostSharp.xml",
+        "lib/netstandard2.0/PostSharp.dll",
+        "lib/netstandard2.0/PostSharp.xml",
+        "postsharp.redist.2024.0.5.nupkg.sha512",
+        "postsharp.redist.nuspec"
       ]
     },
     "System.Configuration.ConfigurationManager/6.0.1": {

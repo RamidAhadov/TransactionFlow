@@ -11,11 +11,14 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="log4net" Version="2.0.15" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="PostSharp" Version="2024.0.5" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="CrossCuttingConcerns\Logging\Log4Net\" />
+      <Folder Include="CrossCuttingConcerns\Logging\Extensions\" />
     </ItemGroup>
 
 </Project>

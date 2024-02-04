@@ -1,5 +1,6 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using log4net.Config;
 using TransactionFlow.Business.DependencyResolvers.Autofac;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,8 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
         builder.RegisterModule(new AutofacBusinessModule());
     });
 
+//builder.Services.AddLog4Net();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,6 +28,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//XmlConfigurator.Configure(new FileInfo("log4net.config"));
 
 app.UseHttpsRedirection();
 
