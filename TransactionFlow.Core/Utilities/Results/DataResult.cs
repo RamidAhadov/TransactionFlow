@@ -1,6 +1,6 @@
 namespace TransactionFlow.Core.Utilities.Results;
 
-public class DataResult<T>:Result,IDataResult<T> where T : class
+public class DataResult<T>:Result,IDataResult<T>
 {
     public DataResult(T data,bool success) : base(success)
     {

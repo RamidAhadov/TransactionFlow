@@ -17,6 +17,6 @@ public class AutofacBusinessModule:Module
         builder.RegisterType<CustomerAccountService>().As<IAccountService>();
         
         builder.RegisterType<EfTransactionDal>().As<ITransactionDal>();
-        //builder.RegisterType<>().As<>();
+        builder.RegisterType<TransactionService>().As<ITransactionService>();
     }
 }

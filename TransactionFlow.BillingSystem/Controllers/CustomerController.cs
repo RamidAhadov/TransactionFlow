@@ -19,7 +19,7 @@ public class CustomerController:ControllerBase
         _accountService = accountService;
     }
 
-    [Route("CreateCustomer")]
+    [Route(nameof(CreateCustomerAsync))]
     [HttpPost]
     public async Task<IActionResult> CreateCustomerAsync(Customer customer)
     {
@@ -38,7 +38,7 @@ public class CustomerController:ControllerBase
         return Ok();
     }
 
-    [Route("DeleteCustomerAsync")]
+    [Route(nameof(DeleteCustomerAsync))]
     [HttpPost]
     public async Task<IActionResult> DeleteCustomerAsync(Customer customer)
     {
@@ -57,9 +57,9 @@ public class CustomerController:ControllerBase
         return Ok();
     }
     
-    [Route("DeleteCustomerAsync")]
+    [Route(nameof(DeleteCustomerByIdAsync))]
     [HttpPost]
-    public async Task<IActionResult> DeleteCustomerAsync(int customerId)
+    public async Task<IActionResult> DeleteCustomerByIdAsync(int customerId)
     {
         var customerResult = await _customerService.DeleteCustomerAsync(customerId);
         if (!customerResult.Success)
@@ -76,7 +76,7 @@ public class CustomerController:ControllerBase
         return Ok();
     }
 
-    [Route("addCustomerAsync")]
+    [Route(nameof(AddCustomerAsync))]
     [HttpPost]
     public async Task<IActionResult> AddCustomerAsync(Customer customer)
     {

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Runtime.InteropServices.JavaScript;
 using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Business.Constants;
 using TransactionFlow.Core.Utilities.Results;
@@ -52,5 +53,40 @@ public class TransactionService:ITransactionService
         if (list.Count == 0)
             return new ErrorDataResult<List<Transaction>>(InfoMessages.ZeroTransactionFound);
         return new SuccessDataResult<List<Transaction>>(list);
+    }
+
+    public async Task<IDataResult<Transaction>> CreateTransaction(int senderId, int receiverId, decimal amount, decimal serviceFee)
+    {
+        var transaction = new Transaction
+        {
+            SenderId = senderId,
+            ReceiverId = receiverId,
+            TransactionAmount = amount,
+            ServiceFee = serviceFee,
+            TransactionType = 1,
+            TransactionStatus = false
+        };
+        try
+        {
+            return new SuccessDataResult<Transaction>(await _transactionDal.AddAsync(transaction));
+        }
+        catch (Exception)
+        {
+            return new ErrorDataResult<Transaction>(ErrorMessages.TransactionNotCreated);
+        }
+    }
+
+    public async Task<IResult> ChangeTransactionStatus(Transaction transaction)
+    {
+        try
+        {
+            transaction.TransactionStatus = true;
+            await _transactionDal.UpdateAsync(transaction);
+            return new SuccessResult();
+        }
+        catch (Exception)
+        {
+            return new ErrorResult(ErrorMessages.TransactionStatusError);
+        }
     }
 }
