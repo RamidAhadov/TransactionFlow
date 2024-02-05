@@ -56,7 +56,13 @@ public class AccountController:ControllerBase
             await _accountService.TryPositiveAdjust(transactionResult.Data, receiverCheckTask.Result.Data);
         if (!receiverResult.Success)
         {
-            //TODO - Rollback sender's balance
+            //If positive adjustment fails, sender's balance rolls back.
+            var rollbackCustomerBalance =
+                await _accountService.TryPositiveAdjust(transactionResult.Data, senderCheckTask.Result.Data);
+            if (!rollbackCustomerBalance.Success)
+            {
+                return BadRequest("Balance rollback failed.");
+            }
             return BadRequest(receiverResult.Message);
         }
 
