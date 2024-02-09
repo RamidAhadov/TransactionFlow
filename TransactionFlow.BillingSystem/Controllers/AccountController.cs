@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using TransactionFlow.Business.Abstraction;
-using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.BillingSystem.Controllers;
 

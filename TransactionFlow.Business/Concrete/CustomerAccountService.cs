@@ -50,8 +50,10 @@ public class CustomerAccountService:IAccountService
 
     public async Task<IResult> TryPositiveAdjust(Transaction transaction,CustomerAccount receiver)
     {
-        if (receiver==null)
+        if (receiver == null)
+        {
             return new ErrorResult(ErrorMessages.NullObjectEntered);
+        }
         receiver.Balance += transaction.TransactionAmount;
         try
         {
@@ -67,7 +69,9 @@ public class CustomerAccountService:IAccountService
     public async Task<IResult> TryNegativeAdjust(Transaction transaction,CustomerAccount sender)
     {
         if (transaction == null)
+        {
             return new ErrorResult(ErrorMessages.NullObjectEntered);
+        }
         sender.Balance = transaction.ServiceFee == 0
             ? sender.Balance - transaction.TransactionAmount
             : sender.Balance - transaction.TransactionAmount - transaction.ServiceFee;
@@ -85,24 +89,42 @@ public class CustomerAccountService:IAccountService
     public async Task<IDataResult<CustomerAccount>> CheckSender(int senderId, decimal amount, decimal fee)
     {
         if (amount <= 0 || fee < 0 || senderId < 0)
+        {
             return new ErrorDataResult<CustomerAccount>(ErrorMessages.IncorrectFormat);
+        }
+        
         var account = await _customerAccountDal.GetAsync(ca => ca.CustomerId == senderId);
-        if (account==null)
+        if (account == null)
+        {
             return new ErrorDataResult<CustomerAccount>(ErrorMessages.AccountNotFound);
+        }
+
         if (account.Balance < amount + fee)
+        {
             return new ErrorDataResult<CustomerAccount>(InfoMessages.InsufficientFund);
+        }
+            
         return new SuccessDataResult<CustomerAccount>(account);
     }
 
     public async Task<IDataResult<CustomerAccount>> CheckReceiver(int receiverId)
     {
         if (receiverId < 0)
+        {
             return new ErrorDataResult<CustomerAccount>(ErrorMessages.IncorrectFormat);
+        }
+            
         var account = await _customerAccountDal.GetAsync(ca => ca.CustomerId == receiverId);
-        if (account==null)
+        if (account == null)
+        {
             return new ErrorDataResult<CustomerAccount>(ErrorMessages.AccountNotFound);
+        }
+
         if (!account.IsActive)
+        {
             return new ErrorDataResult<CustomerAccount>(InfoMessages.InactiveAccount);
+        }
+            
         return new SuccessDataResult<CustomerAccount>(account);
     }
 }

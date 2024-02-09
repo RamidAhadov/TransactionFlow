@@ -29,7 +29,10 @@ public class CustomerService:ICustomerService
     public IResult Add(Customer customer)
     {
         if (customer == null)
+        {
             return new ErrorResult(ErrorMessages.NullObjectEntered);
+        }
+            
         try
         {
             _customerDal.Add(customer);
@@ -44,7 +47,10 @@ public class CustomerService:ICustomerService
     public IResult Update(Customer customer)
     {
         if (customer == null)
+        {
             return new ErrorResult(ErrorMessages.NullObjectEntered);
+        }
+            
         try
         {
             _customerDal.Update(customer);
@@ -60,7 +66,10 @@ public class CustomerService:ICustomerService
     {
         var customer = _customerDal.Get(c => c.Id == id);
         if (customer == null)
+        {
             return new ErrorResult(ErrorMessages.ObjectNotFound);
+        }
+            
         try
         {
             _customerDal.Delete(customer);
@@ -76,7 +85,10 @@ public class CustomerService:ICustomerService
     public async Task<IDataResult<Customer>> AddAsync(Customer customer)
     {
         if (customer == null)
+        {
             return new ErrorDataResult<Customer>(ErrorMessages.NullObjectEntered);
+        }
+            
         var createdCustomer = await _customerDal.AddAsync(customer);
         return new SuccessDataResult<Customer>(createdCustomer,InfoMessages.ItemAdded);
     }
@@ -84,7 +96,10 @@ public class CustomerService:ICustomerService
     public async Task<IDataResult<Customer>> DeleteCustomerAsync(Customer customer)
     {
         if (customer == null)
+        {
             return new ErrorDataResult<Customer>(ErrorMessages.NullObjectEntered);
+        }
+            
         try
         {
             await _customerDal.DeleteAsync(customer);
@@ -99,10 +114,14 @@ public class CustomerService:ICustomerService
     public async Task<IDataResult<Customer>> DeleteCustomerAsync(int customerId)
     {
         if (customerId <= 0)
+        {
             return new ErrorDataResult<Customer>(ErrorMessages.IndexOutOfTheRange);
+        }
+            
         var customer = await _customerDal.GetAsync(c => c.Id == customerId);
         if (customer == null)
             return new ErrorDataResult<Customer>(ErrorMessages.ObjectNotFound);
+        
         try
         {
             await _customerDal.DeleteAsync(customer);
@@ -119,10 +138,14 @@ public class CustomerService:ICustomerService
     {
         //_log.Info("This is a log message.");   
         if (id <= 0)
+        {
             return new ErrorDataResult<Customer>(ErrorMessages.IndexOutOfTheRange);
+        }
+            
         var customer = _customerDal.Get(c => c.Id == id);
         if (customer == null)
             return new ErrorDataResult<Customer>(ErrorMessages.ObjectNotFound);
+        
         return new SuccessDataResult<Customer>(customer);
     }
 }

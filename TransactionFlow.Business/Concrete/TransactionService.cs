@@ -22,36 +22,63 @@ public class TransactionService:ITransactionService
     {
         //_log.Info("This is a log message.");   
         if (customer == null)
+        {
             return new ErrorDataResult<List<Transaction>>(ErrorMessages.NullObjectEntered);
+        }
+            
         var list = _transactionDal.GetTransactions(customer,count);
         if (list == null)
+        {
             return new ErrorDataResult<List<Transaction>>(ErrorMessages.ObjectNotFound);
+        }
+
         if (list.Count == 0)
+        {
             return new ErrorDataResult<List<Transaction>>(InfoMessages.ZeroTransactionFound);
+        }
+            
         return new SuccessDataResult<List<Transaction>>(list);
     }
 
     public IDataResult<List<Transaction>> GetSentTransactions(Customer customer, int? count)
     {
         if (customer == null)
+        {
             return new ErrorDataResult<List<Transaction>>(ErrorMessages.NullObjectEntered);
+        }
+            
         var list = _transactionDal.GetSentTransactions(customer,count);
         if (list == null)
+        {
             return new ErrorDataResult<List<Transaction>>(ErrorMessages.ObjectNotFound);
+        }
+
         if (list.Count == 0)
+        {
             return new ErrorDataResult<List<Transaction>>(InfoMessages.ZeroTransactionFound);
+        }
+            
         return new SuccessDataResult<List<Transaction>>(list);
     }
 
     public IDataResult<List<Transaction>> GetReceivedTransactions(Customer customer, int? count)
     {
         if (customer == null)
+        {
             return new ErrorDataResult<List<Transaction>>(ErrorMessages.NullObjectEntered);
+        }
+            
         var list = _transactionDal.GetReceivedTransactions(customer,count);
         if (list == null)
+        {
             return new ErrorDataResult<List<Transaction>>(ErrorMessages.ObjectNotFound);
+        }
+
         if (list.Count == 0)
+        {
             return new ErrorDataResult<List<Transaction>>(InfoMessages.ZeroTransactionFound);
+        }
+            
         return new SuccessDataResult<List<Transaction>>(list);
     }
 
