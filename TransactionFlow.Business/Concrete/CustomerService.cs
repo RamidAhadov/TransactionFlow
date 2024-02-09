@@ -55,21 +55,7 @@ public class CustomerService:ICustomerService
             return new ErrorResult(ErrorMessages.OperationFailed);
         }
     }
-
-    public IResult Delete(Customer customer)
-    {
-        if (customer == null)
-            return new ErrorResult(ErrorMessages.NullObjectEntered);
-        try
-        {
-            _customerDal.Delete(customer);
-            return new SuccessResult(InfoMessages.ItemDeleted);
-        }
-        catch (Exception)
-        {
-            return new ErrorResult(ErrorMessages.OperationFailed);
-        }
-    }
+    
     public IResult Delete(int id)
     {
         var customer = _customerDal.Get(c => c.Id == id);

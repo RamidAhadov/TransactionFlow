@@ -9,7 +9,6 @@ public interface ICustomerService
     IDataResult<List<Customer>> GetAllCustomers();
     IResult Add(Customer customer);
     IResult Update(Customer customer);
-    IResult Delete(Customer customer);
     IResult Delete(int id);
     Task<IDataResult<Customer>> AddAsync(Customer customer);
     Task<IDataResult<Customer>> DeleteCustomerAsync(Customer customer);

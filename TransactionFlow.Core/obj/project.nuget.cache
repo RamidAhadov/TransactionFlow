@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "RMDvRFQDAOx3SfUGHn0cpOyt1XtBVQRsjHHVgd8Hbie5TAxD9CVTsv+hS/U6rcLbDgCvgRrjnRDspVbndtkYeg==",
+  "dgSpecHash": "S7b62s4rCj5zNrBnTsgPffjGQ7rGTOFCMXSek/s5zRVBC58bjcgBjLZXf057p1fcnnTD/ghDGDeBc6MoSK3Ygg==",
   "success": true,
   "projectFilePath": "/Users/macbook/RiderProjects/TransactionFlow/TransactionFlow.Core/TransactionFlow.Core.csproj",
   "expectedPackageFiles": [
@@ -25,7 +25,11 @@
     "/Users/macbook/.nuget/packages/system.security.cryptography.protecteddata/4.5.0/system.security.cryptography.protecteddata.4.5.0.nupkg.sha512",
     "/Users/macbook/.nuget/packages/system.security.permissions/4.5.0/system.security.permissions.4.5.0.nupkg.sha512",
     "/Users/macbook/.nuget/packages/system.security.principal.windows/4.5.0/system.security.principal.windows.4.5.0.nupkg.sha512",
-    "/Users/macbook/.nuget/packages/microsoft.windowsdesktop.app.ref/6.0.18/microsoft.windowsdesktop.app.ref.6.0.18.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.netcore.app.ref/7.0.15/microsoft.netcore.app.ref.7.0.15.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.aspnetcore.app.ref/7.0.15/microsoft.aspnetcore.app.ref.7.0.15.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.netcore.app.ref/6.0.26/microsoft.netcore.app.ref.6.0.26.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.windowsdesktop.app.ref/6.0.26/microsoft.windowsdesktop.app.ref.6.0.26.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.26/microsoft.aspnetcore.app.ref.6.0.26.nupkg.sha512",
     "/Users/macbook/.nuget/packages/microsoft.netcore.app.ref/5.0.0/microsoft.netcore.app.ref.5.0.0.nupkg.sha512",
     "/Users/macbook/.nuget/packages/microsoft.windowsdesktop.app.ref/5.0.0/microsoft.windowsdesktop.app.ref.5.0.0.nupkg.sha512",
     "/Users/macbook/.nuget/packages/microsoft.aspnetcore.app.ref/5.0.0/microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512",
