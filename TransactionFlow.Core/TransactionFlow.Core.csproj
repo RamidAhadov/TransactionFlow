@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="FluentResults" Version="3.15.2" />
       <PackageReference Include="log4net" Version="2.0.15" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -19,6 +20,19 @@
 
     <ItemGroup>
       <Folder Include="CrossCuttingConcerns\Logging\Extensions\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="obj\Debug\net7.0\TransactionFlow.Core.assets.cache" />
+      <Content Include="obj\project.assets.json" />
+      <Content Include="obj\project.nuget.cache" />
+      <Content Include="obj\project.packagespec.json" />
+      <Content Include="obj\rider.project.restore.info" />
+      <Content Include="obj\TransactionFlow.Core.csproj.nuget.dgspec.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="obj\Debug\net7.0\.NETCoreApp,Version=v7.0.AssemblyAttributes.cs" />
     </ItemGroup>
 
 </Project>

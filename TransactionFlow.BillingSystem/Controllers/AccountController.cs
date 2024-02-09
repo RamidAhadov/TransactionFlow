@@ -1,5 +1,5 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using TransactionFlow.BillingSystem.Services.Abstraction;
 using TransactionFlow.Business.Abstraction;
 
 namespace TransactionFlow.BillingSystem.Controllers;
@@ -9,24 +9,22 @@ namespace TransactionFlow.BillingSystem.Controllers;
 [ApiController]
 public class AccountController:ControllerBase
 {
-    private IAccountService _accountService;
-    private ITransactionService _transactionService;
+    private ITransferService _transferService;
 
-    public AccountController(IAccountService accountService, ITransactionService transactionService)
+    public AccountController(ITransferService transferService)
     {
-        _accountService = accountService;
-        _transactionService = transactionService;
+        _transferService = transferService;
     }
 
-    [Route(nameof(TransferMoney))]
+    /*[Route(nameof(TransferMoney))]
     [HttpPost]
     public async Task<IActionResult> TransferMoney(int sender, int receiver, decimal amount, decimal fee)
     {
         //1. Sender check
-        var senderCheckTask = _accountService.CheckSender(sender, amount, fee);
+        var senderCheckTask = _accountManager.CheckSender(sender, amount, fee);
 
         //2. Receiver check
-        var receiverCheckTask = _accountService.CheckReceiver(receiver);
+        var receiverCheckTask = _accountManager.CheckReceiver(receiver);
 
         await Task.WhenAll(senderCheckTask, receiverCheckTask);
 
@@ -40,25 +38,25 @@ public class AccountController:ControllerBase
             return BadRequest(receiverCheckTask.Result.Message);
         }
         //3. Create transaction
-        var transactionResult = await _transactionService.CreateTransaction(sender, receiver, amount, fee);
+        var transactionResult = await _transactionManager.CreateTransaction(sender, receiver, amount, fee);
         if (!transactionResult.Success)
         {
             return BadRequest(transactionResult.Message);
         }
         //4. Sender Negative adjust
-        var senderResult = await _accountService.TryNegativeAdjust(transactionResult.Data, senderCheckTask.Result.Data);
+        var senderResult = await _accountManager.TryNegativeAdjust(transactionResult.Data, senderCheckTask.Result.Data);
         if (!senderResult.Success)
         {
             return BadRequest(senderResult.Message);
         }
         //5. Receiver positive adjust
         var receiverResult =
-            await _accountService.TryPositiveAdjust(transactionResult.Data, receiverCheckTask.Result.Data);
+            await _accountManager.TryPositiveAdjust(transactionResult.Data, receiverCheckTask.Result.Data);
         if (!receiverResult.Success)
         {
             //If positive adjustment fails, sender's balance rolls back.
             var rollbackCustomerBalance =
-                await _accountService.TryPositiveAdjust(transactionResult.Data, senderCheckTask.Result.Data);
+                await _accountManager.TryPositiveAdjust(transactionResult.Data, senderCheckTask.Result.Data);
             if (!rollbackCustomerBalance.Success)
             {
                 return BadRequest("Balance rollback failed.");
@@ -67,12 +65,26 @@ public class AccountController:ControllerBase
         }
 
         //6. Switch transaction status to true.\
-        var statusChangeResult = await _transactionService.ChangeTransactionStatus(transactionResult.Data);
+        var statusChangeResult = await _transactionManager.ChangeTransactionStatus(transactionResult.Data);
         if (!statusChangeResult.Success)
         {
             return BadRequest();
         }
         
+        return Ok();
+    }
+*/
+
+    [Route(nameof(TransferMoneyAsync))]
+    [HttpPost]
+    public async Task<IActionResult> TransferMoneyAsync(int sender, int receiver, decimal amount, decimal fee)
+    {
+        var result = await _transferService.TransferMoneyAsync(sender, receiver, amount, fee);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Errors);
+        }
+
         return Ok();
     }
 }

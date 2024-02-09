@@ -1,7 +1,7 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using log4net.Config;
-using TransactionFlow.Business.DependencyResolvers.Autofac;
+using TransactionFlow.BillingSystem.DependencyResolvers.Autofac;
 
 var builder = WebApplication.CreateBuilder(args);
 

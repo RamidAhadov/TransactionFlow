@@ -1,4 +1,4 @@
-namespace TransactionFlow.Business.Constants;
+namespace TransactionFlow.Core.Constants;
 
 public static class SuccessMessages
 {

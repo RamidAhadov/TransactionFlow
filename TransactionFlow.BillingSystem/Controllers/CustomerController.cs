@@ -10,26 +10,26 @@ namespace TransactionFlow.BillingSystem.Controllers;
 [ApiController]
 public class CustomerController:ControllerBase
 {
-    private ICustomerService _customerService;
-    private IAccountService _accountService;
+    private ICustomerManager _customerManager;
+    private IAccountManager _accountManager;
 
-    public CustomerController(ICustomerService customerService, IAccountService accountService)
+    public CustomerController(ICustomerManager customerManager, IAccountManager accountManager)
     {
-        _customerService = customerService;
-        _accountService = accountService;
+        _customerManager = customerManager;
+        _accountManager = accountManager;
     }
 
     [Route(nameof(CreateCustomerAsync))]
     [HttpPost]
     public async Task<IActionResult> CreateCustomerAsync(Customer customer)
     {
-        var result = await _customerService.AddAsync(customer);
+        var result = await _customerManager.AddAsync(customer);
         if (!result.Success)
         {
             return BadRequest(result.Message);
         }
 
-        var accountResult = await _accountService.CreateAccountAsync(result.Data);
+        var accountResult = await _accountManager.CreateAccountAsync(result.Data);
         if (!accountResult.Success)
         {
             return BadRequest(accountResult.Message);
@@ -42,13 +42,13 @@ public class CustomerController:ControllerBase
     [HttpPost]
     public async Task<IActionResult> DeleteCustomerAsync(int customerId)
     {
-        var customerResult = await _customerService.DeleteCustomerAsync(customerId);
+        var customerResult = await _customerManager.DeleteCustomerAsync(customerId);
         if (!customerResult.Success)
         {
             return BadRequest(customerResult.Message);
         }
 
-        var result = await _accountService.DeleteAccountAsync(customerResult.Data);
+        var result = await _accountManager.DeleteAccountAsync(customerResult.Data);
         if (!result.Success)
         {
             return BadRequest(result.Message);
@@ -62,7 +62,7 @@ public class CustomerController:ControllerBase
     [Route(nameof(GetCustomerById))]
     public IActionResult GetCustomerById(int id)
     {
-        var result = _customerService.GetCustomerById(id);
+        var result = _customerManager.GetCustomerById(id);
         if (!result.Success)
         {
             return BadRequest(result.Message);
