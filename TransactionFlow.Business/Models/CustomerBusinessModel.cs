@@ -1,8 +1,9 @@
-using TransactionFlow.BillingSystem.Models.Dtos.Abstraction;
+using TransactionFlow.Business.Models.Abstraction;
+using TransactionFlow.Entities.Concrete;
 
-namespace TransactionFlow.BillingSystem.Models.Dtos;
+namespace TransactionFlow.Business.Models;
 
-public class CustomerDto:IDto
+public class CustomerBusinessModel:IBusinessModel
 {
     public int Id { get; }
     public string FirstName { get; set; }
@@ -10,4 +11,6 @@ public class CustomerDto:IDto
     public string LastName { get; set; }
     public string? Address { get; set; }
     public DateTime RegisterDate { get; }
+    
+    List<CustomerAccount>? Accounts { get; set; }
 }
