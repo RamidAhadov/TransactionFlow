@@ -16,4 +16,5 @@ public interface IEntityRepository<T> where T: class, IEntity, new()
     Task<T> AddAsync(T entity);
     Task<T> UpdateAsync(T entity);
     Task<T> DeleteAsync(T entity);
+    Task<T> DeleteAsync(Expression<Func<T, bool>> filter);
 }

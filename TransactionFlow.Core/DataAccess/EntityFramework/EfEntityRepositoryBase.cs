@@ -87,4 +87,13 @@ where TContext: DbContext, new()
         await context.SaveChangesAsync();
         return entity;
     }
+
+    public async Task<TEntity> DeleteAsync(Expression<Func<TEntity,bool>> filter)
+    {
+        await using var context = new TContext();
+        var deletedEntity = context.Entry( await context.Set<TEntity>().SingleOrDefaultAsync(filter));
+        deletedEntity.State = EntityState.Deleted;
+        await context.SaveChangesAsync();
+        return deletedEntity.Entity;
+    }
 }
