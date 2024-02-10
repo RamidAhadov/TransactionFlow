@@ -1,5 +1,6 @@
 using AutoMapper;
 using FluentResults;
+using Microsoft.Extensions.Configuration;
 using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Business.Models;
 using TransactionFlow.Core.Constants;
@@ -10,14 +11,17 @@ namespace TransactionFlow.Business.Concrete;
 
 public class CustomerManager:ICustomerManager
 {
-    private readonly ICustomerDal _customerDal;
-
+    private IConfiguration Configuration { get; }
+    private  CustomerDetails _details;
+    private  ICustomerDal _customerDal;
     private IMapper _mapper;
 
-    public CustomerManager(ICustomerDal customerDal, IMapper mapper)
+    public CustomerManager(ICustomerDal customerDal, IMapper mapper, IConfiguration configuration)
     {
         _customerDal = customerDal;
         _mapper = mapper;
+        Configuration = configuration;
+        _details = Configuration.GetSection("CustomerDetails").Get<CustomerDetails>();
     }
 
     public Result<List<CustomerModel>> GetAllCustomers()
@@ -81,7 +85,7 @@ public class CustomerManager:ICustomerManager
     }
 
     //To add a customer asynchronously.
-    public async Task<Result<CustomerModel>> AddAsync(CustomerModel customer)
+    public async Task<Result<CustomerModel>> CreateAsync(CustomerModel customer)
     {
         if (customer == null)
         {
@@ -125,11 +129,15 @@ public class CustomerManager:ICustomerManager
         }
             
         var customer = _customerDal.Get(c => c.Id == id);
+        
         if (customer == null)
         {
             return Result.Fail(ErrorMessages.ObjectNotFound);
         }
+
+        var customerModel = _mapper.Map<CustomerModel>(customer);
+        customerModel.MaxAllowedAccounts = _details.MaxAllowedAccounts;
         
-        return Result.Ok(_mapper.Map<CustomerModel>(customer));
+        return Result.Ok(customerModel);
     }
 }

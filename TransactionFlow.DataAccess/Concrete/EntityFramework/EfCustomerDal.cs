@@ -16,4 +16,14 @@ public class EfCustomerDal:EfEntityRepositoryBase<Customer,TransactionContext>,I
                 .OrderByDescending(ca => ca.AccountId).ToList();
         }
     }
+
+    public async Task<List<CustomerAccount>> GetAccountsAsync(Customer customer)
+    {
+        await using (var context = new TransactionContext())
+        {
+            var customers = await context.CustomerAccounts.Where(ca => ca.CustomerId == customer.Id)
+                .OrderByDescending(ca => ca.AccountId).ToListAsync();
+            return customers;
+        }
+    }
 }

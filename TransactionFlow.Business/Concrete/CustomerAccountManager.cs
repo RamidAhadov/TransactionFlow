@@ -27,11 +27,10 @@ public class CustomerAccountManager:IAccountManager
         {
             CustomerId = customerModel.Id,
             Balance = 100,
-            IsActive = true
+            IsActive = true,
+            IsMain = !await HasAccount(customerModel)
         };
 
-        account.IsMain = !CheckHasMain(customerModel);
-        
         try
         {
             await _customerAccountDal.AddAsync(account);
@@ -43,24 +42,12 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public async Task<Result> DeleteAccountAsync(CustomerModel customerModel,int accountId)
+    public async Task<Result<List<CustomerAccountModel>>> GetAccountsAsync(CustomerModel customerModel)
     {
         try
         {
-            var account =
-                await _customerAccountDal.GetAsync(ca =>
-                    ca.CustomerId == customerModel.Id && ca.AccountId == accountId);
-            await _customerAccountDal.DeleteAsync(account);
-            
-            
-            //Create another method.
-            //var accountModel = _mapper.Map<CustomerAccountModel>(account);
-            // if (accountModel.IsMain && CheckHasMain(customerModel))
-            // {
-            //     var secondAccount = GetAccountList(customerModel)[0];
-            //     secondAccount.IsMain = true;
-            // }
-            return Result.Ok();
+            var accounts = await GetAccountListAsync(customerModel);
+            return Result.Ok(accounts);
         }
         catch (Exception)
         {
@@ -68,17 +55,63 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    private bool CheckHasMain(CustomerModel customerModel)
+    public async Task<Result> DeleteAccountAsync(int customerId,int accountId)
     {
-        var accountList = GetAccountList(customerModel);
+        // try
+        // {
+        //     //TODO
+        //     var customerModel = new CustomerModel();
+        //     
+        //     var account = await _customerAccountDal.DeleteAsync(ca=>ca.AccountId == accountId);
+        //     
+        //     var selectResult = await SelectMainAccount(customerModel, _mapper.Map<CustomerAccountModel>(account));
+        //     
+        //     if (selectResult.IsFailed)
+        //     {
+        //         return Result.Fail(selectResult.Errors);
+        //     }
+        //     
+        //     return Result.Ok();
+        // }
+        // catch (Exception)
+        // {
+        //     return Result.Fail(ErrorMessages.OperationFailed);
+        // }
+
+        return Result.Fail("");
+    }
+
+    private async Task<Result> SelectMainAccount(CustomerModel customerModel, CustomerAccountModel accountModel)
+    {
+        if (accountModel.IsMain && await HasAccount(customerModel))
+        {
+            var secondAccount = (await GetAccountListAsync(customerModel))[0];
+            secondAccount.IsMain = true;
+
+            try
+            {
+                await _customerAccountDal.UpdateAsync(_mapper.Map<CustomerAccount>(secondAccount));
+                return Result.Ok();
+            }
+            catch (Exception e)
+            {
+                return Result.Fail(e.Message);
+            }
+        }
+
+        return Result.Ok();
+    }
+    
+    private async Task<bool> HasAccount(CustomerModel customerModel)
+    {
+        var accountList = await GetAccountListAsync(customerModel);
 
         return accountList.Count != 0;
     }
 
-    private List<CustomerAccountModel> GetAccountList(CustomerModel customerModel)
+    private async Task<List<CustomerAccountModel>> GetAccountListAsync(CustomerModel customerModel)
     {
-        return _mapper.Map<List<CustomerAccountModel>>(_customerDal.GetAccounts(_mapper.Map<Customer>(customerModel)));
+        return _mapper.Map<List<CustomerAccountModel>>(
+            await _customerDal.GetAccountsAsync(_mapper.Map<Customer>(customerModel)));
     }
-    
-    
 }

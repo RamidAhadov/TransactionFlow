@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using TransactionFlow.BillingSystem.Services.Abstraction;
-using TransactionFlow.Business.Abstraction;
 
 namespace TransactionFlow.BillingSystem.Controllers;
 
@@ -10,10 +9,12 @@ namespace TransactionFlow.BillingSystem.Controllers;
 public class AccountController:ControllerBase
 {
     private ITransferService _transferService;
+    private IAccountService _accountService;
 
-    public AccountController(ITransferService transferService)
+    public AccountController(ITransferService transferService, IAccountService accountService)
     {
         _transferService = transferService;
+        _accountService = accountService;
     }
 
     /*[Route(nameof(TransferMoney))]
@@ -82,7 +83,20 @@ public class AccountController:ControllerBase
         var result = await _transferService.TransferMoneyAsync(sender, receiver, amount, fee);
         if (result.IsFailed)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Reasons);
+        }
+
+        return Ok();
+    }
+
+    [Route(nameof(CreateAccountAsync))]
+    [HttpPost]
+    public async Task<IActionResult> CreateAccountAsync(int customerId)
+    {
+        var result = await _accountService.CreateAccountAsync(customerId);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
         }
 
         return Ok();

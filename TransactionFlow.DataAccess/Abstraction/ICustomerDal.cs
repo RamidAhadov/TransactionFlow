@@ -6,4 +6,5 @@ namespace TransactionFlow.DataAccess.Abstraction;
 public interface ICustomerDal:IEntityRepository<Customer>
 {
     List<CustomerAccount> GetAccounts(Customer customer);
+    Task<List<CustomerAccount>> GetAccountsAsync(Customer customer);
 }

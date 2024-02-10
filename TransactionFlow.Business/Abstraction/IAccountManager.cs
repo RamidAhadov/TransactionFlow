@@ -7,6 +7,7 @@ namespace TransactionFlow.Business.Abstraction;
 public interface IAccountManager
 {
     Task<Result> CreateAccountAsync(CustomerModel customer);
-    Task<Result> DeleteAccountAsync(CustomerModel customer,int accountId);
+    Task<Result<List<CustomerAccountModel>>> GetAccountsAsync(CustomerModel customerModel);
+    Task<Result> DeleteAccountAsync(int customerId,int accountId);
     
 }

@@ -24,5 +24,6 @@ public class AutofacBusinessModule:Module
         
         //Services
         builder.RegisterType<TransferService>().As<ITransferService>();
+        builder.RegisterType<AccountService>().As<IAccountService>();
     }
 }

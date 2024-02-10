@@ -1,3 +1,5 @@
+using FluentResults;
+
 namespace TransactionFlow.Core.Constants;
 
 public static class ErrorMessages
@@ -13,4 +15,5 @@ public static class ErrorMessages
     public const string TransactionNotCreated = "An error occurred while create transaction.";
     public const string AdjustmentFailed = "An error occured while adjusting customer's balance.";
     public const string TransactionStatusError = "An error occured while change transaction status.";
+    public const string MaxAllowedAccountsExceed = "Cannot create new account. You reached maximum allowed account counts.";
 }
