@@ -1,13 +1,12 @@
 using FluentResults;
+using TransactionFlow.Business.Models;
 using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.Business.Abstraction;
 
 public interface IAccountManager
 {
-    Task<Result> CreateAccountAsync(Customer customer);
-    Task<Result> DeleteAccountAsync(Customer customer);
-    Task<Result<CustomerAccount>> CheckSender(int senderId, decimal amount, decimal fee);
-    Task<Result<CustomerAccount>> CheckReceiver(int receiverId);
+    Task<Result> CreateAccountAsync(CustomerModel customer);
+    Task<Result> DeleteAccountAsync(CustomerModel customer,int accountId);
     
 }

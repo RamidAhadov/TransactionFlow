@@ -1,5 +1,7 @@
+using AutoMapper;
 using FluentResults;
 using TransactionFlow.Business.Abstraction;
+using TransactionFlow.Business.Models;
 using TransactionFlow.Core.Constants;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.Entities.Concrete;
@@ -9,20 +11,27 @@ namespace TransactionFlow.Business.Concrete;
 public class CustomerAccountManager:IAccountManager
 {
     private ICustomerAccountDal _customerAccountDal;
+    private ICustomerDal _customerDal;
+    private IMapper _mapper;
 
-    public CustomerAccountManager(ICustomerAccountDal customerAccountDal)
+    public CustomerAccountManager(ICustomerAccountDal customerAccountDal, ICustomerDal customerDal, IMapper mapper)
     {
         _customerAccountDal = customerAccountDal;
+        _customerDal = customerDal;
+        _mapper = mapper;
     }
 
-    public async Task<Result> CreateAccountAsync(Customer customer)
+    public async Task<Result> CreateAccountAsync(CustomerModel customerModel)
     {
         var account = new CustomerAccount
         {
-            CustomerId = customer.Id,
+            CustomerId = customerModel.Id,
             Balance = 100,
             IsActive = true
         };
+
+        account.IsMain = !CheckHasMain(customerModel);
+        
         try
         {
             await _customerAccountDal.AddAsync(account);
@@ -34,12 +43,23 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public async Task<Result> DeleteAccountAsync(Customer customer)
+    public async Task<Result> DeleteAccountAsync(CustomerModel customerModel,int accountId)
     {
         try
         {
-            var account = await _customerAccountDal.GetAsync(ca => ca.CustomerId == customer.Id);
+            var account =
+                await _customerAccountDal.GetAsync(ca =>
+                    ca.CustomerId == customerModel.Id && ca.AccountId == accountId);
             await _customerAccountDal.DeleteAsync(account);
+            
+            
+            //Create another method.
+            //var accountModel = _mapper.Map<CustomerAccountModel>(account);
+            // if (accountModel.IsMain && CheckHasMain(customerModel))
+            // {
+            //     var secondAccount = GetAccountList(customerModel)[0];
+            //     secondAccount.IsMain = true;
+            // }
             return Result.Ok();
         }
         catch (Exception)
@@ -48,45 +68,17 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public async Task<Result<CustomerAccount>> CheckSender(int senderId, decimal amount, decimal fee)
+    private bool CheckHasMain(CustomerModel customerModel)
     {
-        if (amount <= 0 || fee < 0 || senderId < 0)
-        {
-            return Result.Fail(ErrorMessages.IncorrectFormat);
-        }
-        
-        var account = await _customerAccountDal.GetAsync(ca => ca.CustomerId == senderId);
-        if (account == null)
-        {
-            return Result.Fail<CustomerAccount>(ErrorMessages.AccountNotFound);
-        }
+        var accountList = GetAccountList(customerModel);
 
-        if (account.Balance < amount + fee)
-        {
-            return Result.Fail<CustomerAccount>(InfoMessages.InsufficientFund);
-        }
-            
-        return Result.Ok(account);
+        return accountList.Count != 0;
     }
 
-    public async Task<Result<CustomerAccount>> CheckReceiver(int receiverId)
+    private List<CustomerAccountModel> GetAccountList(CustomerModel customerModel)
     {
-        if (receiverId < 0)
-        {
-            return Result.Fail(ErrorMessages.IncorrectFormat);
-        }
-            
-        var account = await _customerAccountDal.GetAsync(ca => ca.CustomerId == receiverId);
-        if (account == null)
-        {
-            return Result.Fail(ErrorMessages.AccountNotFound);
-        }
-
-        if (!account.IsActive)
-        {
-            return Result.Fail(InfoMessages.InactiveAccount);
-        }
-            
-        return Result.Ok(account);
+        return _mapper.Map<List<CustomerAccountModel>>(_customerDal.GetAccounts(_mapper.Map<Customer>(customerModel)));
     }
+    
+    
 }

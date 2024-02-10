@@ -1,15 +1,16 @@
 using FluentResults;
+using TransactionFlow.Business.Models;
 using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.Business.Abstraction;
 
 public interface ICustomerManager
 {
-    Result<List<Customer>> GetAllCustomers();
-    Result Add(Customer customer);
-    Result Update(Customer customer);
+    Result<List<CustomerModel>> GetAllCustomers();
+    Result Create(CustomerModel customer);
+    Result Update(CustomerModel customer);
     Result Delete(int id);
-    Task<Result<Customer>> AddAsync(Customer customer);
-    Task<Result<Customer>> DeleteCustomerAsync(int customerId);
-    Result<Customer> GetCustomerById(int id);
+    Task<Result<CustomerModel>> AddAsync(CustomerModel customer);
+    Task<Result<CustomerModel>> DeleteCustomerAsync(int customerId);
+    Result<CustomerModel> GetCustomerById(int id);
 }

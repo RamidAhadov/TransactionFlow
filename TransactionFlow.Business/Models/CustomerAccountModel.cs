@@ -1,11 +1,13 @@
-namespace TransactionFlow.Entities.Concrete;
+using TransactionFlow.Business.Models.Abstraction;
 
-public class CustomerAccount:IEntity
+namespace TransactionFlow.Business.Models;
+
+public class CustomerAccountModel:IBusinessModel
 {
     public int AccountId { get; }
     public int CustomerId { get; set; }
     public decimal Balance { get; set; }
-    public DateTime CreatedDate { get; private set; } = DateTime.Now;
+    public DateTime CreatedDate { get; }
     public DateTime? LastUpdated { get; set; }
     public bool IsActive { get; set; }
     public bool IsMain { get; set; }
