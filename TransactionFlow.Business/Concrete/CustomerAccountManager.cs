@@ -23,7 +23,7 @@ public class CustomerAccountManager:IAccountManager
 
     public async Task<Result> CreateAccountAsync(CustomerModel customerModel)
     {
-        var account = new CustomerAccount
+        var accountModel = new CustomerAccountModel
         {
             CustomerId = customerModel.Id,
             Balance = 100,
@@ -33,13 +33,18 @@ public class CustomerAccountManager:IAccountManager
 
         try
         {
-            await _customerAccountDal.AddAsync(account);
+            await _customerAccountDal.AddAsync(_mapper.Map<CustomerAccount>(accountModel));
             return Result.Ok();
         }
         catch (Exception)
         {
             return Result.Fail(ErrorMessages.AccountNotCreated);
         }
+    }
+
+    public void Do(string message)
+    {
+        
     }
 
     public async Task<Result<List<CustomerAccountModel>>> GetAccountsAsync(CustomerModel customerModel)
@@ -55,11 +60,11 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public async Task<Result> DeleteAccountAsync(int accountId)
+    public async Task<Result> DeleteAccountAsync(CustomerAccountModel accountModel)
     {
         try
         {
-            await _customerAccountDal.DeleteAsync(ca => ca.AccountId == accountId);
+            await _customerAccountDal.DeleteAsync(_mapper.Map<CustomerAccount>(accountModel));
             
             return Result.Ok();
         }
@@ -90,7 +95,7 @@ public class CustomerAccountManager:IAccountManager
     {
         try
         {
-            await _customerAccountDal.ChangeMainAccount(customerAccountModel.CustomerId);
+            await _customerAccountDal.ChangeMainAccountAsync(customerAccountModel.CustomerId);
 
             return Result.Ok();
         }
@@ -100,17 +105,47 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public async Task<Result> TransferToMainAsync(int accountId)
+    public async Task<Result<CustomerAccountModel>> TransferToMainAsync(int accountId)
     {
         try
         {
-            await _customerAccountDal.TransferToMainAsync(accountId);
+            var account = await _customerAccountDal.TransferToMainAsync(accountId);
 
-            return Result.Ok();
+            return Result.Ok(_mapper.Map<CustomerAccountModel>(account));
         }
         catch (Exception e)
         {
             return Result.Fail(e.Message);
+        }
+    }
+
+    public async Task<Result> DeactivateAccountAsync(CustomerAccountModel accountModel)
+    {
+        try
+        {
+            accountModel.IsActive = false;
+            await _customerAccountDal.UpdateAsync(_mapper.Map<CustomerAccount>(accountModel));
+            
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.OperationFailed);
+        }
+    }
+
+    public async Task<Result> ActivateAccountAsync(CustomerAccountModel accountModel)
+    {
+        try
+        {
+            accountModel.IsActive = true;
+            await _customerAccountDal.UpdateAsync(_mapper.Map<CustomerAccount>(accountModel));
+            
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.OperationFailed);
         }
     }
 

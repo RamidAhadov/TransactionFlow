@@ -17,4 +17,7 @@ public static class ErrorMessages
     public const string TransactionStatusError = "An error occured while change transaction status.";
     public const string MaxAllowedAccountsExceed = "Cannot create new account. You reached maximum allowed account counts.";
     public const string CannotDeleteSingleAccount = "Cannot delete single account. Customer should has at least 2 accounts.";
+    public const string CustomerHasNotAnotherAccount = "Cannot complete operation. Customer has not another active account for this process.";
+    public const string AccountAlreadyDeactivated = "Cannot deactivate account. Because account is already inactive.";
+    public const string AccountAlreadyActivated = "Cannot activate account. Because account is already active.";
 }

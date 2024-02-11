@@ -55,7 +55,7 @@ public class EfCustomerAccountDal:EfEntityRepositoryBase<CustomerAccount,Transac
         }
     }
 
-    public async Task ChangeMainAccount(int customerId)
+    public async Task ChangeMainAccountAsync(int customerId)
     {
         await using (var dbContext = new TransactionContext())
         {
@@ -65,11 +65,11 @@ public class EfCustomerAccountDal:EfEntityRepositoryBase<CustomerAccount,Transac
                 {
                     var accounts = await dbContext.CustomerAccounts.Where(ca => ca.CustomerId == customerId).ToListAsync();
                     var mainAccount = accounts.SingleOrDefault(a => a.IsMain);
-                    var nonMainAccounts = accounts.Where(a => !a.IsMain).ToList();
+                    var nonMainAccounts = accounts.Where(a => !a.IsMain && a.IsActive).ToList();
 
                     if (!nonMainAccounts.Any())
                     {
-                        throw new InvalidOperationException(ErrorMessages.CannotDeleteSingleAccount);
+                        throw new InvalidOperationException(ErrorMessages.CustomerHasNotAnotherAccount);
                     }
 
                     mainAccount.IsMain = false;
@@ -94,8 +94,7 @@ public class EfCustomerAccountDal:EfEntityRepositoryBase<CustomerAccount,Transac
         }
     }
 
-
-    public async Task TransferToMainAsync(int accountId)
+    public async Task<CustomerAccount> TransferToMainAsync(int accountId)
     {
         await using (var dbContext = new TransactionContext())
         {
@@ -108,11 +107,13 @@ public class EfCustomerAccountDal:EfEntityRepositoryBase<CustomerAccount,Transac
                         await dbContext.CustomerAccounts.SingleOrDefaultAsync(ca =>
                             ca.CustomerId == account.CustomerId && ca.IsMain);
                     
-                    TransferAmount(account,mainAccount,account.Balance);
+                    TransferAmount(account,mainAccount, account.Balance);
 
                     await dbContext.SaveChangesAsync();
 
                     await transaction.CommitAsync();
+
+                    return account;
                 }
                 catch (Exception e)
                 {
@@ -123,27 +124,27 @@ public class EfCustomerAccountDal:EfEntityRepositoryBase<CustomerAccount,Transac
         }
     }
 
-    private void TransferAmount(CustomerAccount senderAccount, CustomerAccount receiverAccount, decimal amount)
+    private static void TransferAmount(CustomerAccount senderAccount, CustomerAccount receiverAccount, decimal amount)
     {
         if (senderAccount.Balance < amount)
         {
             throw new InvalidOperationException(InfoMessages.InsufficientFund);
         }
         
-        senderAccount.Balance =- amount;
-        receiverAccount.Balance =+ amount;
+        receiverAccount.Balance += amount;
+        senderAccount.Balance = 0;
         senderAccount.LastUpdated = receiverAccount.LastUpdated = DateTime.Now;
     }
 
-    private void TransferAmount(CustomerAccount senderAccount, CustomerAccount receiverAccount, decimal amount, decimal fee)
+    private static void TransferAmount(CustomerAccount senderAccount, CustomerAccount receiverAccount, decimal amount, decimal fee)
     {
         if (senderAccount.Balance < amount + fee)
         {
             throw new InvalidOperationException(InfoMessages.InsufficientFund);
         }
 
-        senderAccount.Balance =- (amount + fee);
-        receiverAccount.Balance =+ amount;
+        senderAccount.Balance -= amount + fee;
+        receiverAccount.Balance += amount;
         senderAccount.LastUpdated = receiverAccount.LastUpdated = DateTime.Now;
     }
 }

@@ -43,6 +43,31 @@ public class AccountController:ControllerBase
         return Ok();
     }
     
+    [Route(nameof(DeactivateAccountAsync))]
+    [HttpPost]
+    public async Task<IActionResult> DeactivateAccountAsync(int accountId)
+    {
+        var result = await _accountService.DeactivateAccountAsync(accountId);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
+        }
+
+        return Ok();
+    }
+    
+    [Route(nameof(ActivateAccountAsync))]
+    [HttpPost]
+    public async Task<IActionResult> ActivateAccountAsync(int accountId)
+    {
+        var result = await _accountService.ActivateAccountAsync(accountId);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
+        }
+
+        return Ok();
+    }
     
     [Route(nameof(TransferMoneyAsync))]
     [HttpPost]
