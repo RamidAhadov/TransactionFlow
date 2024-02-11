@@ -19,9 +19,20 @@ public class EfCustomerDal:EfEntityRepositoryBase<Customer,TransactionContext>,I
 
     public async Task<List<CustomerAccount>> GetAccountsAsync(Customer customer)
     {
+        return await GetAccountsByIdAsync(customer.Id);
+    }
+
+    public async Task<List<CustomerAccount>> GetAccountsAsync(int customerId)
+    {
+        return await GetAccountsByIdAsync(customerId);
+    }
+    
+    
+    private static async Task<List<CustomerAccount>> GetAccountsByIdAsync(int customerId)
+    {
         await using (var context = new TransactionContext())
         {
-            var customers = await context.CustomerAccounts.Where(ca => ca.CustomerId == customer.Id)
+            var customers = await context.CustomerAccounts.Where(ca => ca.CustomerId == customerId)
                 .OrderByDescending(ca => ca.AccountId).ToListAsync();
             return customers;
         }

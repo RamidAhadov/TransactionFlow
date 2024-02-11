@@ -60,4 +60,37 @@ public class AccountService:IAccountService
         
         return Result.Ok();
     }
+
+    public async Task<Result> DeleteAccountAsync(int accountId)
+    {
+        var account = await _accountManager.GetAccountAsync(accountId);
+        
+        if (account.IsFailed)
+        {
+            return Result.Fail(account.Errors);
+        }
+
+        if (account.Value.IsMain)
+        {
+            var changeResult = await _accountManager.ChangeMainAccountAsync(account.Value);
+            if (changeResult.IsFailed)
+            {
+                return Result.Fail(changeResult.Errors);
+            }
+        }
+
+        var transferResult = await _accountManager.TransferToMainAsync(accountId);
+        if (transferResult.IsFailed)
+        {
+            return Result.Fail(transferResult.Errors);
+        }
+
+        var deleteResult = await _accountManager.DeleteAccountAsync(accountId);
+        if (deleteResult.IsFailed)
+        {
+            return Result.Fail(deleteResult.Errors);
+        }
+
+        return Result.Ok();
+    }
 }

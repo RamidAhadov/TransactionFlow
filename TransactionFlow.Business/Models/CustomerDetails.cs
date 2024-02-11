@@ -2,5 +2,5 @@ namespace TransactionFlow.Business.Models;
 
 public class CustomerDetails
 {
-    public int MaxAllowedAccounts { get; set; }
+    public int MaxAllowedAccounts { get; init; }
 }

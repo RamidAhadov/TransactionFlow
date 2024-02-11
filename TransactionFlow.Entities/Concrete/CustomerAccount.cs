@@ -2,7 +2,7 @@ namespace TransactionFlow.Entities.Concrete;
 
 public class CustomerAccount:IEntity
 {
-    public int AccountId { get; }
+    public int AccountId { get; set; }
     public int CustomerId { get; set; }
     public decimal Balance { get; set; }
     public DateTime CreatedDate { get; private set; } = DateTime.Now;

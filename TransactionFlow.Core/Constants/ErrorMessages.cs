@@ -16,4 +16,5 @@ public static class ErrorMessages
     public const string AdjustmentFailed = "An error occured while adjusting customer's balance.";
     public const string TransactionStatusError = "An error occured while change transaction status.";
     public const string MaxAllowedAccountsExceed = "Cannot create new account. You reached maximum allowed account counts.";
+    public const string CannotDeleteSingleAccount = "Cannot delete single account. Customer should has at least 2 accounts.";
 }

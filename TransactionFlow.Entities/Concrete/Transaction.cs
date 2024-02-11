@@ -1,5 +1,3 @@
-
-
 namespace TransactionFlow.Entities.Concrete;
 
 public class Transaction:IEntity

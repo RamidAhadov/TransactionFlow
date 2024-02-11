@@ -4,8 +4,9 @@ namespace TransactionFlow.Business.Models;
 
 public class CustomerAccountModel:IBusinessModel
 {
-    public int CustomerId { get; set; }
-    public decimal Balance { get;}
+    public int AccountId { get; init; }
+    public int CustomerId { get; init; }
+    public decimal Balance { get; set; }
     public bool IsActive { get; set; }
     public bool IsMain { get; set; }
 }

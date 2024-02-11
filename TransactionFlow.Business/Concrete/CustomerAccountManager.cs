@@ -55,30 +55,63 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public async Task<Result> DeleteAccountAsync(int customerId,int accountId)
+    public async Task<Result> DeleteAccountAsync(int accountId)
     {
-        // try
-        // {
-        //     //TODO
-        //     var customerModel = new CustomerModel();
-        //     
-        //     var account = await _customerAccountDal.DeleteAsync(ca=>ca.AccountId == accountId);
-        //     
-        //     var selectResult = await SelectMainAccount(customerModel, _mapper.Map<CustomerAccountModel>(account));
-        //     
-        //     if (selectResult.IsFailed)
-        //     {
-        //         return Result.Fail(selectResult.Errors);
-        //     }
-        //     
-        //     return Result.Ok();
-        // }
-        // catch (Exception)
-        // {
-        //     return Result.Fail(ErrorMessages.OperationFailed);
-        // }
+        try
+        {
+            await _customerAccountDal.DeleteAsync(ca => ca.AccountId == accountId);
+            
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.OperationFailed);
+        }
+    }
 
-        return Result.Fail("");
+    public async Task<Result<CustomerAccountModel>> GetAccountAsync(int accountId)
+    {
+        if (accountId==null)
+        {
+            return Result.Fail(ErrorMessages.NullObjectEntered);
+        }
+        
+        var account = _mapper.Map<CustomerAccountModel>(await _customerAccountDal.GetAsync(ca => ca.AccountId == accountId));
+        
+        if (account== null)
+        {
+            return Result.Fail(ErrorMessages.AccountNotFound);
+        }
+
+        return Result.Ok(account);
+    }
+
+    public async Task<Result> ChangeMainAccountAsync(CustomerAccountModel customerAccountModel)
+    {
+        try
+        {
+            await _customerAccountDal.ChangeMainAccount(customerAccountModel.CustomerId);
+
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.OperationFailed);
+        }
+    }
+
+    public async Task<Result> TransferToMainAsync(int accountId)
+    {
+        try
+        {
+            await _customerAccountDal.TransferToMainAsync(accountId);
+
+            return Result.Ok();
+        }
+        catch (Exception e)
+        {
+            return Result.Fail(e.Message);
+        }
     }
 
     private async Task<Result> SelectMainAccount(CustomerModel customerModel, CustomerAccountModel accountModel)
@@ -113,5 +146,11 @@ public class CustomerAccountManager:IAccountManager
     {
         return _mapper.Map<List<CustomerAccountModel>>(
             await _customerDal.GetAccountsAsync(_mapper.Map<Customer>(customerModel)));
+    }
+    
+    private async Task<List<CustomerAccountModel>> GetAccountListAsync(int customerId)
+    {
+        return _mapper.Map<List<CustomerAccountModel>>(
+            await _customerDal.GetAccountsAsync(customerId));
     }
 }
