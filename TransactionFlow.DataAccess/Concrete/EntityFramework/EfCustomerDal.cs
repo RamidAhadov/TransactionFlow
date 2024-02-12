@@ -32,9 +32,20 @@ public class EfCustomerDal:EfEntityRepositoryBase<Customer,TransactionContext>,I
     {
         await using (var context = new TransactionContext())
         {
-            var customers = await context.CustomerAccounts.Where(ca => ca.CustomerId == customerId)
-                .OrderByDescending(ca => ca.AccountId).ToListAsync();
-            return customers;
+            //Temporary try-catch
+            //Test here
+            try
+            {
+
+                var customers = await context.CustomerAccounts.Where(ca => ca.CustomerId == customerId)
+                    .OrderByDescending(ca => ca.AccountId).ToListAsync();
+                return customers;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
         }
     }
 }

@@ -14,5 +14,5 @@ public class CustomerModel:IBusinessModel
     public DateTime RegisterDate { get; init; }
     public int MaxAllowedAccounts { get; set; }
 
-    List<CustomerAccount>? Accounts { get; set; }
+    public List<CustomerAccountModel>? Accounts { get; set; }
 }

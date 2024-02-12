@@ -4,7 +4,7 @@ using TransactionFlow.Entities.Concrete.Archive;
 
 namespace TransactionFlow.DataAccess.Abstraction;
 
-public interface ICustomerAccountArchiveDal:IEntityRepository<CustomerAccountArchive>
+public interface IArchiveDal:IEntityRepository<CustomerArchive>
 {
-    
+    Task ArchiveAsync(CustomerArchive customer,List<CustomerAccountArchive> customerAccount);
 }

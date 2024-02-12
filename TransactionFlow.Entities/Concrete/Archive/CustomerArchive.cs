@@ -1,4 +1,4 @@
-namespace TransactionFlow.Entities.Concrete;
+namespace TransactionFlow.Entities.Concrete.Archive;
 
 public class CustomerArchive:IEntity
 {

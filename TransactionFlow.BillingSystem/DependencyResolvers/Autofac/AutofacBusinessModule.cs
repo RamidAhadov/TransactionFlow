@@ -22,6 +22,9 @@ public class AutofacBusinessModule:Module
         builder.RegisterType<EfTransactionDal>().As<ITransactionDal>();
         builder.RegisterType<TransactionManager>().As<ITransactionManager>();
         
+        builder.RegisterType<EfArchiveDal>().As<IArchiveDal>();
+        builder.RegisterType<ArchiveManager>().As<IArchiveManager>();
+        
         //Services
         builder.RegisterType<TransferService>().As<ITransferService>();
         builder.RegisterType<AccountService>().As<IAccountService>();

@@ -4,7 +4,9 @@ using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
 using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Business.Models;
+using TransactionFlow.Business.Models.Archive;
 using TransactionFlow.Core.Constants;
+using TransactionFlow.Entities.Concrete.Archive;
 
 namespace TransactionFlow.BillingSystem.Services.Concrete;
 
@@ -12,6 +14,7 @@ public class AccountService:IAccountService
 {
     private IAccountManager _accountManager;
     private ICustomerManager _customerManager;
+    private IArchiveManager _archiveManager;
     private IMapper _mapper;
 
     public AccountService(IAccountManager accountManager, ICustomerManager customerManager, IMapper mapper)
@@ -34,6 +37,33 @@ public class AccountService:IAccountService
         {
             return Result.Fail(accountCreateResult.Errors);
         }
+
+        return Result.Ok();
+    }
+
+    public async Task<Result> DeleteCustomerAsync(int customerId)
+    {
+        var getCustomerResult = _customerManager.GetCustomerById(customerId);
+        if (getCustomerResult.IsFailed)
+        {
+            return Result.Fail(getCustomerResult.Errors);
+        }
+
+        var getAccountsResult = await _accountManager.GetAccountsAsync(getCustomerResult.Value);
+        if (getCustomerResult.IsFailed)
+        {
+            return Result.Fail(getCustomerResult.Errors);
+        }
+        
+        // getCustomerResult.Value.Accounts = getAccountsResult.Value;
+        // var archiveDetails = new ArchiveDetails
+        // {
+        //     CustomerId = customerId,
+        //     AccountIds = getAccountsResult.Value.Select(model => model.AccountId).ToList()
+        // };
+
+        await _archiveManager.ArchiveCustomerAndAccountsAsync(_mapper.Map<CustomerArchiveModel>(getCustomerResult.Value),
+            _mapper.Map<List<CustomerAccountArchiveModel>>(getAccountsResult.Value));
 
         return Result.Ok();
     }

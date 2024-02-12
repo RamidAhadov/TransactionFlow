@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TransactionFlow.Entities.Concrete;
+using TransactionFlow.Entities.Concrete.Archive;
 
 namespace TransactionFlow.DataAccess.Concrete.EntityFramework.Contexts;
 
@@ -17,6 +18,9 @@ public class TransactionContext:DbContext
         modelBuilder.Entity<Customer>().HasKey(c => c.Id);
         modelBuilder.Entity<Transaction>().HasKey(t => t.Id);
         modelBuilder.Entity<CustomerAccount>().HasKey(ca => ca.AccountId);
+        modelBuilder.Entity<CustomerArchive>().HasKey(c => c.CustomerId);
+        modelBuilder.Entity<CustomerAccountArchive>().HasKey(c => c.AccountId);
+        
     }
 
     public DbSet<Customer> Customers { get; set; }

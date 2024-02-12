@@ -35,6 +35,12 @@ public class CustomerController:ControllerBase
     [HttpPost]
     public async Task<IActionResult> DeleteCustomerAsync(int customerId)
     {
+        var result = await _accountService.DeleteCustomerAsync(customerId);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Errors);
+        }
+
         return Ok();
     }
 
