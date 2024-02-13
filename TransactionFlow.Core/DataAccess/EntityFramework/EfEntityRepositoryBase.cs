@@ -54,6 +54,15 @@ where TContext: DbContext, new()
         }
     }
 
+    public void DeleteRange(List<TEntity> entities)
+    {
+        using (var context = new TContext())
+        {
+            context.RemoveRange(entities);
+            context.SaveChanges();
+        }
+    }
+
     public async Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>>? filter = null)
     {
         await using (var context = new TContext())
@@ -96,6 +105,29 @@ where TContext: DbContext, new()
         }
     }
 
+    public async Task UpdateRangeAsync(List<TEntity> entities)
+    {
+        await using (var context = new TContext())
+        {
+            await using (var transaction = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    context.Set<TEntity>().UpdateRange(entities);
+
+                   await context.SaveChangesAsync();
+
+                   await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
+        }
+    }
+
     public async Task<TEntity> DeleteAsync(TEntity entity)
     {
         await using (var context = new TContext())
@@ -104,6 +136,29 @@ where TContext: DbContext, new()
             deletedEntity.State = EntityState.Deleted;
             await context.SaveChangesAsync();
             return entity;
+        }
+    }
+
+    public async Task DeleteRangeAsync(List<TEntity> entities)
+    {
+        await using (var context = new TContext())
+        {
+            await using (var transaction = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    context.Set<TEntity>().RemoveRange(entities);
+
+                    await context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
         }
     }
 
