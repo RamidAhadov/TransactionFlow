@@ -7,5 +7,5 @@ namespace TransactionFlow.Business.Abstraction;
 
 public interface IArchiveManager
 {
-    Task<Result> ArchiveCustomerAndAccountsAsync(CustomerArchiveModel customerArchiveModel,List<CustomerAccountArchiveModel> accountArchiveModels);
+    Task<Result> ArchiveCustomerAndAccountsAsync(CustomerArchiveModel customerArchiveModel);
 }

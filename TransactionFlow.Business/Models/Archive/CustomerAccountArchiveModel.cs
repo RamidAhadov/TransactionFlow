@@ -8,6 +8,6 @@ public class CustomerAccountArchiveModel:IBusinessModel
     public int CustomerId { get; set; }
     public decimal LastBalance { get; set; }
     public DateTime CreatedDate { get; init; }
-    public DateTime ArchiveDate { get; init; }
+    public DateTime ArchiveDate { get; private set; } = DateTime.Now;
     public bool WasMain { get; set; }
 }

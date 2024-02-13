@@ -18,12 +18,13 @@ public class ArchiveManager:IArchiveManager
         _mapper = mapper;
     }
 
-    public async Task<Result> ArchiveCustomerAndAccountsAsync(CustomerArchiveModel customerArchiveModel, List<CustomerAccountArchiveModel> accountArchiveModels)
+    public async Task<Result> ArchiveCustomerAndAccountsAsync(CustomerArchiveModel customerArchiveModel)
     {
         try
         {
             var customerArchive = _mapper.Map<CustomerArchive>(customerArchiveModel);
-            var customerAccounts = _mapper.Map<List<CustomerAccountArchive>>(accountArchiveModels);
+            var customerAccounts = _mapper.Map<List<CustomerAccountArchive>>(customerArchiveModel.Accounts);
+            customerArchive.AccountCount = customerAccounts.Count;
             await _archiveDal.ArchiveAsync(customerArchive,customerAccounts);
             
             return Result.Ok();

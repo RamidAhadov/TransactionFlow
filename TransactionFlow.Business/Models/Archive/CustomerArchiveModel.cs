@@ -11,7 +11,7 @@ public class CustomerArchiveModel:IBusinessModel
     public string? Address { get; set; }
     public DateTime RegisterDate { get; init; }
     public DateTime ArchiveDate { get; init; }
-    public int AccountCount { get; set; }
+    //public int AccountCount { get; set; }
     
     public List<CustomerAccountArchiveModel>? Accounts { get; set; }
 }
