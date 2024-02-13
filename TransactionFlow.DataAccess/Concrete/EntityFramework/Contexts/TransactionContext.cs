@@ -24,8 +24,10 @@ public class TransactionContext:DbContext
     }
 
     public DbSet<Customer> Customers { get; set; }
-    public DbSet<Transaction> Transactions { get; }
-    public DbSet<CustomerAccount> CustomerAccounts { get; }
+    public DbSet<Transaction> Transactions { get; set; }
+    public DbSet<CustomerAccount> CustomerAccounts { get; set; }
+    
+    //Archive tables
     public DbSet<CustomerArchive> CustomersArchive { get; set; }
-    public DbSet<CustomerAccountArchive> CustomersAccountArchive { get; set; }
+    public DbSet<CustomerAccountArchive> CustomerAccountsArchive { get; set; }
 }

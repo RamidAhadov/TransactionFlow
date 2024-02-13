@@ -10,7 +10,9 @@ public interface ICustomerManager
     Result Create(CustomerModel customer);
     Result Update(CustomerModel customer);
     Result Delete(int id);
-    Task<Result<CustomerModel>> CreateAsync(CustomerModel customer);
+    Result Delete(CustomerModel customerModel);
+    Task<Result<CustomerModel>> CreateAsync(CustomerModel customerModel);
     Task<Result<CustomerModel>> DeleteCustomerAsync(int customerId);
+    Task<Result<CustomerModel>> DeleteCustomerAsync(CustomerModel customerModel);
     Result<CustomerModel> GetCustomerById(int id);
 }

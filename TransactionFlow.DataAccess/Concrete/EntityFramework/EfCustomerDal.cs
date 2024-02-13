@@ -36,7 +36,6 @@ public class EfCustomerDal:EfEntityRepositoryBase<Customer,TransactionContext>,I
             //Test here
             try
             {
-
                 var customers = await context.CustomerAccounts.Where(ca => ca.CustomerId == customerId)
                     .OrderByDescending(ca => ca.AccountId).ToListAsync();
                 return customers;

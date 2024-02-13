@@ -30,6 +30,20 @@ public class AutoMapperProfile:Profile
             .ForMember(dest => dest.WasMain, opt => opt
                 .MapFrom(src => src.IsMain));
 
+        CreateMap<CustomerModel, CustomerArchiveModel>()
+            .ForMember(dest => dest.CustomerId, opt => opt
+                .MapFrom(src => src.Id));
+        
+        CreateMap<CustomerArchiveModel, CustomerModel>()
+            .ForMember(dest => dest.Id, opt => opt
+                .MapFrom(src => src.CustomerId));
+
+        CreateMap<CustomerAccountModel, CustomerAccountArchiveModel>()
+            .ForMember(dest => dest.LastBalance, opt => opt
+                .MapFrom(src => src.Balance))
+            .ForMember(dest => dest.WasMain, opt => opt
+                .MapFrom(src => src.IsMain));
+
         CreateMap<CustomerArchive, CustomerArchiveModel>();
         CreateMap<CustomerArchiveModel, CustomerArchive>();
         

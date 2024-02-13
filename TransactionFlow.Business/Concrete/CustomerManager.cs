@@ -84,6 +84,19 @@ public class CustomerManager:ICustomerManager
         }
     }
 
+    public Result Delete(CustomerModel customerModel)
+    {
+        try
+        {
+            _customerDal.Delete(_mapper.Map<Customer>(customerModel));
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.OperationFailed);
+        }
+    }
+
     //To add a customer asynchronously.
     public async Task<Result<CustomerModel>> CreateAsync(CustomerModel customer)
     {
@@ -104,7 +117,7 @@ public class CustomerManager:ICustomerManager
             return Result.Fail(ErrorMessages.IndexOutOfTheRange);
         }
             
-        var customer = await _customerDal.GetAsync(c => c.Id == customerId);
+        var customer = _customerDal.Get(c => c.Id == customerId);
         if (customer == null)
         {
             return Result.Fail(ErrorMessages.ObjectNotFound);
@@ -114,6 +127,19 @@ public class CustomerManager:ICustomerManager
         {
             await _customerDal.DeleteAsync(customer);
             return Result.Ok(_mapper.Map<CustomerModel>(customer));
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.OperationFailed);
+        }
+    }
+
+    public async Task<Result<CustomerModel>> DeleteCustomerAsync(CustomerModel customerModel)
+    {
+        try
+        {
+            await _customerDal.DeleteAsync(_mapper.Map<Customer>(customerModel));
+            return Result.Ok(_mapper.Map<CustomerModel>(customerModel));
         }
         catch (Exception)
         {

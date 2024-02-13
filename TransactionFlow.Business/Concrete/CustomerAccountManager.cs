@@ -42,11 +42,6 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public void Do(string message)
-    {
-        
-    }
-
     public async Task<Result<List<CustomerAccountModel>>> GetAccountsAsync(CustomerModel customerModel)
     {
         try
@@ -54,9 +49,9 @@ public class CustomerAccountManager:IAccountManager
             var accounts = await GetAccountListAsync(customerModel);
             return Result.Ok(accounts);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            return Result.Fail(ErrorMessages.OperationFailed);
+            return Result.Fail(e.Message);
         }
     }
 
@@ -74,6 +69,20 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
+    public Result DeleteAccount(List<CustomerAccountModel> accountModels)
+    {
+        try
+        {
+            _customerAccountDal.DeleteRange(_mapper.Map<List<CustomerAccount>>(accountModels));
+            
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.OperationFailed);
+        }
+    }
+
     public async Task<Result<CustomerAccountModel>> GetAccountAsync(int accountId)
     {
         if (accountId==null)
@@ -82,8 +91,8 @@ public class CustomerAccountManager:IAccountManager
         }
         
         var account = _mapper.Map<CustomerAccountModel>(await _customerAccountDal.GetAsync(ca => ca.AccountId == accountId));
-        
-        if (account== null)
+
+        if (account == null)
         {
             return Result.Fail(ErrorMessages.AccountNotFound);
         }
@@ -134,6 +143,20 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
+    public async Task<Result> DeactivateAccountAsync(List<CustomerAccountModel> accountModels)
+    {
+        try
+        {
+            await _customerAccountDal.UpdateRangeAsync(_mapper.Map<List<CustomerAccount>>(accountModels));
+            
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.OperationFailed);
+        }
+    }
+
     public async Task<Result> ActivateAccountAsync(CustomerAccountModel accountModel)
     {
         try
@@ -151,7 +174,7 @@ public class CustomerAccountManager:IAccountManager
 
     private async Task<Result> SelectMainAccount(CustomerModel customerModel, CustomerAccountModel accountModel)
     {
-        if (accountModel.IsMain && await HasAccount(customerModel))
+        if (accountModel.IsMain)
         {
             var secondAccount = (await GetAccountListAsync(customerModel))[0];
             secondAccount.IsMain = true;
@@ -179,8 +202,14 @@ public class CustomerAccountManager:IAccountManager
 
     private async Task<List<CustomerAccountModel>> GetAccountListAsync(CustomerModel customerModel)
     {
-        return _mapper.Map<List<CustomerAccountModel>>(
+        var accounts = _mapper.Map<List<CustomerAccountModel>>(
             await _customerDal.GetAccountsAsync(_mapper.Map<Customer>(customerModel)));
+        if (accounts == null || accounts.Count == 0)
+        {
+            throw new NullReferenceException(ErrorMessages.AccountNotFound);
+        }
+
+        return accounts;
     }
     
     private async Task<List<CustomerAccountModel>> GetAccountListAsync(int customerId)

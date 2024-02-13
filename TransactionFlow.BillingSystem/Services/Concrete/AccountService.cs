@@ -6,7 +6,6 @@ using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Business.Models;
 using TransactionFlow.Business.Models.Archive;
 using TransactionFlow.Core.Constants;
-using TransactionFlow.Entities.Concrete.Archive;
 
 namespace TransactionFlow.BillingSystem.Services.Concrete;
 
@@ -17,10 +16,11 @@ public class AccountService:IAccountService
     private IArchiveManager _archiveManager;
     private IMapper _mapper;
 
-    public AccountService(IAccountManager accountManager, ICustomerManager customerManager, IMapper mapper)
+    public AccountService(IAccountManager accountManager, ICustomerManager customerManager, IMapper mapper, IArchiveManager archiveManager)
     {
         _accountManager = accountManager;
         _customerManager = customerManager;
+        _archiveManager = archiveManager;
         _mapper = mapper;
     }
 
@@ -54,17 +54,33 @@ public class AccountService:IAccountService
         {
             return Result.Fail(getCustomerResult.Errors);
         }
+
+        var deactivateResult = await _accountManager.DeactivateAccountAsync(getAccountsResult.Value);
+        if (deactivateResult.IsFailed)
+        {
+            return Result.Fail(deactivateResult.Errors);
+        }
+
+        var customerArchiveModel = _mapper.Map<CustomerArchiveModel>(getCustomerResult.Value);
+        customerArchiveModel.Accounts = _mapper.Map<List<CustomerAccountArchiveModel>>(getAccountsResult.Value);
+        var archiveResult = await _archiveManager.ArchiveCustomerAndAccountsAsync(customerArchiveModel);
+        if (archiveResult.IsFailed)
+        {
+            return Result.Fail(archiveResult.Errors);
+        }
+
+        var customerDeleteResult = _customerManager.Delete(getCustomerResult.Value);
+        if (customerDeleteResult.IsFailed)
+        {
+            return Result.Fail(customerDeleteResult.Errors);
+        }
+
+        var accountDeleteResult = _accountManager.DeleteAccount(getAccountsResult.Value);
+        if (accountDeleteResult.IsFailed)
+        {
+            return Result.Fail(accountDeleteResult.Errors);
+        }
         
-        // getCustomerResult.Value.Accounts = getAccountsResult.Value;
-        // var archiveDetails = new ArchiveDetails
-        // {
-        //     CustomerId = customerId,
-        //     AccountIds = getAccountsResult.Value.Select(model => model.AccountId).ToList()
-        // };
-
-        await _archiveManager.ArchiveCustomerAndAccountsAsync(_mapper.Map<CustomerArchiveModel>(getCustomerResult.Value),
-            _mapper.Map<List<CustomerAccountArchiveModel>>(getAccountsResult.Value));
-
         return Result.Ok();
     }
 
