@@ -24,7 +24,30 @@ public class EfArchiveDal:EfEntityRepositoryBase<CustomerArchive,TransactionCont
 
                     await transaction.CommitAsync();
                 }
-                catch (Exception e)
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
+        }
+    }
+
+    public async Task ArchiveAsync(CustomerAccountArchive customerAccount)
+    {
+        await using (var context = new TransactionContext())
+        {
+            await using (var transaction = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    await context.AddAsync(customerAccount);
+
+                    await context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
                 {
                     await transaction.RollbackAsync();
                     throw;

@@ -4,13 +4,15 @@ using TransactionFlow.Core.DataAccess.EntityFramework;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.DataAccess.Concrete.EntityFramework.Contexts;
 using TransactionFlow.Entities.Concrete;
+using InvalidOperationException = System.InvalidOperationException;
+
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 
 namespace TransactionFlow.DataAccess.Concrete.EntityFramework;
 
 public class EfCustomerAccountDal:EfEntityRepositoryBase<CustomerAccount,TransactionContext>,ICustomerAccountDal
 {
-    public async Task TransferAsync(Transaction transferDetails)
+    public async Task TransferAsync1(Transaction transferDetails)
     {
         int senderId = transferDetails.SenderId;
         int receiverId = transferDetails.ReceiverId;
@@ -80,21 +82,21 @@ public class EfCustomerAccountDal:EfEntityRepositoryBase<CustomerAccount,Transac
 
                     await transaction.CommitAsync();
                 }
-                catch(InvalidOperationException)
+                catch(InvalidOperationException exception)
                 {
                     await transaction.RollbackAsync();
-                    throw;
+                    throw new InvalidOperationException(exception.Message);
                 }
-                catch (Exception e)
+                catch (Exception exception)
                 {
                     await transaction.RollbackAsync();
-                    throw new Exception(e.Message);
+                    throw new Exception(exception.Message);
                 }
             }
         }
     }
 
-    public async Task<CustomerAccount> TransferToMainAsync(int accountId)
+    public async Task<CustomerAccount> TransferAsync(TransactionDetails transactionDetails)
     {
         await using (var dbContext = new TransactionContext())
         {
@@ -102,23 +104,27 @@ public class EfCustomerAccountDal:EfEntityRepositoryBase<CustomerAccount,Transac
             {
                 try
                 {
-                    var account = await dbContext.CustomerAccounts.SingleOrDefaultAsync(ca=>ca.AccountId == accountId);
-                    var mainAccount =
+                    var senderAccount = await dbContext.CustomerAccounts.SingleOrDefaultAsync(ca=>ca.AccountId == transactionDetails.SenderId);
+                    var receiverAccount =
                         await dbContext.CustomerAccounts.SingleOrDefaultAsync(ca =>
-                            ca.CustomerId == account.CustomerId && ca.IsMain);
+                            ca.AccountId == transactionDetails.ReceiverId);
                     
-                    TransferAmount(account,mainAccount, account.Balance);
+                    TransferAmount(senderAccount,receiverAccount, transactionDetails.TransactionAmount);
+
+                    var transactionRecord =
+                        await dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == transactionDetails.Id);
+                    transactionRecord.TransactionStatus = true;
 
                     await dbContext.SaveChangesAsync();
 
                     await transaction.CommitAsync();
 
-                    return account;
+                    return senderAccount;
                 }
-                catch (Exception e)
+                catch (Exception exception)
                 {
                     await transaction.RollbackAsync();
-                    throw new Exception(e.Message);
+                    throw new Exception(exception.Message);
                 }
             }
         }

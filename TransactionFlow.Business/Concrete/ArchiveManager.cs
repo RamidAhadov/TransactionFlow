@@ -1,7 +1,9 @@
 using AutoMapper;
 using FluentResults;
 using TransactionFlow.Business.Abstraction;
+using TransactionFlow.Business.Models;
 using TransactionFlow.Business.Models.Archive;
+using TransactionFlow.Core.Constants;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.Entities.Concrete.Archive;
 
@@ -29,9 +31,23 @@ public class ArchiveManager:IArchiveManager
             
             return Result.Ok();
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return Result.Fail(e.Message);
+            return Result.Fail(ErrorMessages.ArchiveFailed);
+        }
+    }
+
+    public async Task<Result> ArchiveAccountAsync(CustomerAccountArchiveModel accountArchiveModel)
+    {
+        try
+        {
+            await _archiveDal.ArchiveAsync(_mapper.Map<CustomerAccountArchive>(accountArchiveModel));
+            
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.ArchiveFailed);
         }
     }
 }
