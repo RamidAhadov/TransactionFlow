@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using TransactionFlow.Entities.Concrete;
 using TransactionFlow.Entities.Concrete.Archive;
 
@@ -6,10 +7,22 @@ namespace TransactionFlow.DataAccess.Concrete.EntityFramework.Contexts;
 
 public class TransactionContext:DbContext
 {
+    private IConfiguration Configuration { get; set; }
+    
+    private ConnectionStringDetails _connectionString;
+    
+    public TransactionContext()
+    {
+        Configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.Development.json")
+            .Build();
+        _connectionString = Configuration.GetSection("ConnectionStringDetails").Get<ConnectionStringDetails>();
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer(
-            @"Server=localhost,1433;Database=TransactionFlow;User Id=SA;Password=Password1!;TrustServerCertificate=True");
+            $"Server={_connectionString.Host};Database={_connectionString.DatabaseName};User Id={_connectionString.UserName};Password={_connectionString.Password};TrustServerCertificate=True");
         optionsBuilder.EnableSensitiveDataLogging();
     }
 
@@ -21,6 +34,11 @@ public class TransactionContext:DbContext
         modelBuilder.Entity<CustomerArchive>().HasKey(c => c.CustomerId);
         modelBuilder.Entity<CustomerAccountArchive>().HasKey(c => c.AccountId);
         
+        //ORM
+        modelBuilder.Entity<CustomerAccount>()
+            .HasOne(a => a.Customer)
+            .WithMany(c => c.CustomerAccounts)
+            .HasForeignKey(a => a.CustomerId);
     }
 
     public DbSet<Customer> Customers { get; set; }
