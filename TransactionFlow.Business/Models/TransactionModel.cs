@@ -1,11 +1,12 @@
-namespace TransactionFlow.Entities.Concrete;
+using TransactionFlow.Business.Models.Abstraction;
 
-public class Transaction:IEntity
+namespace TransactionFlow.Business.Models;
+
+public class TransactionModel:IBusinessModel
 {
     public int Id { get; set; }
     public int SenderId { get; set; }
     public int ReceiverId { get; set; }
-    public DateTime TransactionDate { get; private set; } = DateTime.Now;
     public decimal TransactionAmount { get; set; }
     public decimal ServiceFee { get; set; }
     public short TransactionType { get; set; }

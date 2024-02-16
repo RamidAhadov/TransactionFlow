@@ -1,6 +1,8 @@
 using System.ComponentModel;
+using AutoMapper;
 using FluentResults;
 using TransactionFlow.Business.Abstraction;
+using TransactionFlow.Business.Models;
 using TransactionFlow.Core.Constants;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.Entities.Concrete;
@@ -10,10 +12,12 @@ namespace TransactionFlow.Business.Concrete;
 public class TransactionManager:ITransactionManager
 {
     private ITransactionDal _transactionDal;
+    private IMapper _mapper;
 
-    public TransactionManager(ITransactionDal transactionDal)
+    public TransactionManager(ITransactionDal transactionDal, IMapper mapper)
     {
         _transactionDal = transactionDal;
+        _mapper = mapper;
     }
 
     [Description(description:"Count describes last *count transaction(s)")]
@@ -81,20 +85,21 @@ public class TransactionManager:ITransactionManager
         return Result.Ok(list);
     }
 
-    public async Task<Result<Transaction>> CreateTransaction(int senderId, int receiverId, decimal amount, decimal serviceFee)
+    public async Task<Result<TransactionModel>> CreateTransaction(int senderId, int receiverId, decimal amount, decimal serviceFee,short transactionType)
     {
-        var transaction = new Transaction
+        var transactionModel = new TransactionModel
         {
             SenderId = senderId,
             ReceiverId = receiverId,
             TransactionAmount = amount,
             ServiceFee = serviceFee,
-            TransactionType = 1,
-            TransactionStatus = false
+            TransactionStatus = false,
+            TransactionType = transactionType
         };
         try
         {
-            return Result.Ok(await _transactionDal.AddAsync(transaction));
+            return Result.Ok<TransactionModel>(_mapper.Map<TransactionModel>(
+                await _transactionDal.AddAsync(_mapper.Map<Transaction>(transactionModel))));
         }
         catch (Exception e)
         {
