@@ -8,4 +8,6 @@ public class Customer:IEntity
     public string LastName { get; set; }
     public string? Address { get; set; }
     public DateTime RegisterDate { get; private set; } = DateTime.Now;
+
+    public List<CustomerAccount> CustomerAccounts { get; set; }
 }

@@ -166,4 +166,15 @@ public class CustomerManager:ICustomerManager
         
         return Result.Ok(customerModel);
     }
+    public Result<CustomerModel> GetCustomerWithAccounts(int customerId)
+    {
+        try
+        {
+            return Result.Ok(_mapper.Map<CustomerModel>(_customerDal.GetCustomerWithAccounts(customerId)));
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.AccountNotFound);
+        }
+    }
 }

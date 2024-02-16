@@ -49,9 +49,22 @@ public class CustomerAccountManager:IAccountManager
             var accounts = await GetAccountListAsync(customerModel);
             return Result.Ok(accounts);
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return Result.Fail(e.Message);
+            return Result.Fail(ErrorMessages.AccountsNotFound);
+        }
+    }
+
+    
+    public Result<CustomerAccountModel> GetMainAccount(int customerId)
+    {
+        try
+        {
+            return Result.Ok(_mapper.Map<CustomerAccountModel>(_customerDal.GetCustomerWithAccounts(customerId).CustomerAccounts.FirstOrDefault(ca => ca.IsMain)));
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.AccountNotFound);
         }
     }
 
@@ -65,7 +78,7 @@ public class CustomerAccountManager:IAccountManager
         }
         catch (Exception)
         {
-            return Result.Fail(ErrorMessages.OperationFailed);
+            return Result.Fail(ErrorMessages.AccountNotDeleted);
         }
     }
 
@@ -79,7 +92,7 @@ public class CustomerAccountManager:IAccountManager
         }
         catch (Exception)
         {
-            return Result.Fail(ErrorMessages.OperationFailed);
+            return Result.Fail(ErrorMessages.AccountNotDeleted);
         }
     }
 
@@ -114,11 +127,11 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public async Task<Result<CustomerAccountModel>> TransferToMainAsync(int accountId)
+    public async Task<Result<CustomerAccountModel>> TransferToMainAsync(TransactionModel transactionModel)
     {
         try
         {
-            var account = await _customerAccountDal.TransferToMainAsync(accountId);
+            var account = await _customerAccountDal.TransferAsync(_mapper.Map<TransactionDetails>(transactionModel));
 
             return Result.Ok(_mapper.Map<CustomerAccountModel>(account));
         }
@@ -170,27 +183,6 @@ public class CustomerAccountManager:IAccountManager
         {
             return Result.Fail(ErrorMessages.OperationFailed);
         }
-    }
-
-    private async Task<Result> SelectMainAccount(CustomerModel customerModel, CustomerAccountModel accountModel)
-    {
-        if (accountModel.IsMain)
-        {
-            var secondAccount = (await GetAccountListAsync(customerModel))[0];
-            secondAccount.IsMain = true;
-
-            try
-            {
-                await _customerAccountDal.UpdateAsync(_mapper.Map<CustomerAccount>(secondAccount));
-                return Result.Ok();
-            }
-            catch (Exception e)
-            {
-                return Result.Fail(e.Message);
-            }
-        }
-
-        return Result.Ok();
     }
     
     private async Task<bool> HasAccount(CustomerModel customerModel)

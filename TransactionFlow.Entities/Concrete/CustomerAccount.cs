@@ -9,4 +9,6 @@ public class CustomerAccount:IEntity
     public DateTime? LastUpdated { get; set; }
     public bool IsActive { get; set; }
     public bool IsMain { get; set; }
+
+    public Customer Customer { get; set; }
 }

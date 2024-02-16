@@ -20,4 +20,7 @@ public static class ErrorMessages
     public const string CustomerHasNotAnotherAccount = "Cannot complete operation. Customer has not another active account for this process.";
     public const string AccountAlreadyDeactivated = "Cannot deactivate account. Because account is already inactive.";
     public const string AccountAlreadyActivated = "Cannot activate account. Because account is already active.";
+    public const string ArchiveFailed = "An error occurred while archiving data.";
+    public const string AccountsNotFound = "An error occurred while searching accounts.";
+    public const string AccountNotDeleted = "Account could not be deleted.";
 }

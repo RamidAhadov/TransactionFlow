@@ -14,13 +14,15 @@ public class AccountService:IAccountService
     private IAccountManager _accountManager;
     private ICustomerManager _customerManager;
     private IArchiveManager _archiveManager;
+    private ITransactionManager _transactionManager;
     private IMapper _mapper;
 
-    public AccountService(IAccountManager accountManager, ICustomerManager customerManager, IMapper mapper, IArchiveManager archiveManager)
+    public AccountService(IAccountManager accountManager, ICustomerManager customerManager, IMapper mapper, IArchiveManager archiveManager, ITransactionManager transactionManager)
     {
         _accountManager = accountManager;
         _customerManager = customerManager;
         _archiveManager = archiveManager;
+        _transactionManager = transactionManager;
         _mapper = mapper;
     }
 
@@ -43,26 +45,20 @@ public class AccountService:IAccountService
 
     public async Task<Result> DeleteCustomerAsync(int customerId)
     {
-        var getCustomerResult = _customerManager.GetCustomerById(customerId);
+        var getCustomerResult = _customerManager.GetCustomerWithAccounts(customerId);
         if (getCustomerResult.IsFailed)
         {
             return Result.Fail(getCustomerResult.Errors);
         }
 
-        var getAccountsResult = await _accountManager.GetAccountsAsync(getCustomerResult.Value);
-        if (getCustomerResult.IsFailed)
-        {
-            return Result.Fail(getCustomerResult.Errors);
-        }
-
-        var deactivateResult = await _accountManager.DeactivateAccountAsync(getAccountsResult.Value);
+        var deactivateResult = await _accountManager.DeactivateAccountAsync(getCustomerResult.Value.Accounts);
         if (deactivateResult.IsFailed)
         {
             return Result.Fail(deactivateResult.Errors);
         }
 
         var customerArchiveModel = _mapper.Map<CustomerArchiveModel>(getCustomerResult.Value);
-        customerArchiveModel.Accounts = _mapper.Map<List<CustomerAccountArchiveModel>>(getAccountsResult.Value);
+        customerArchiveModel.Accounts = _mapper.Map<List<CustomerAccountArchiveModel>>(getCustomerResult.Value.Accounts);
         var archiveResult = await _archiveManager.ArchiveCustomerAndAccountsAsync(customerArchiveModel);
         if (archiveResult.IsFailed)
         {
@@ -75,7 +71,7 @@ public class AccountService:IAccountService
             return Result.Fail(customerDeleteResult.Errors);
         }
 
-        var accountDeleteResult = _accountManager.DeleteAccount(getAccountsResult.Value);
+        var accountDeleteResult = _accountManager.DeleteAccount(getCustomerResult.Value.Accounts);
         if (accountDeleteResult.IsFailed)
         {
             return Result.Fail(accountDeleteResult.Errors);
@@ -86,14 +82,13 @@ public class AccountService:IAccountService
 
     public async Task<Result> CreateAccountAsync(int customerId)
     {
-        var customer = _customerManager.GetCustomerById(customerId);
+        var customer = _customerManager.GetCustomerWithAccounts(customerId);
         if (customer.IsFailed)
         {
             return Result.Fail(customer.Errors);
         }
 
-        var accounts = await _accountManager.GetAccountsAsync(customer.Value);
-        if (accounts.Value.Count >= customer.Value.MaxAllowedAccounts)
+        if (customer.Value.Accounts.Count >= customer.Value.MaxAllowedAccounts)
         {
             return Result.Fail(ErrorMessages.MaxAllowedAccountsExceed);
         }
@@ -124,10 +119,30 @@ public class AccountService:IAccountService
             }
         }
 
-        var transferResult = await _accountManager.TransferToMainAsync(accountId);
+        var mainAccountResult = _accountManager.GetMainAccount(account.Value.CustomerId);
+        if (mainAccountResult.IsFailed)
+        {
+            return Result.Fail(mainAccountResult.Errors);
+        }
+        
+        var transactionResult = await _transactionManager.CreateTransaction(
+            account.Value.AccountId,mainAccountResult.Value.AccountId,account.Value.Balance,default,1);
+        if (transactionResult.IsFailed)
+        {
+            return Result.Fail(transactionResult.Errors);
+        }
+        
+        var transferResult = await _accountManager.TransferToMainAsync(transactionResult.Value);
         if (transferResult.IsFailed)
         {
             return Result.Fail(transferResult.Errors);
+        }
+
+        var archiveResult =
+            await _archiveManager.ArchiveAccountAsync(_mapper.Map<CustomerAccountArchiveModel>(account.Value));
+        if (archiveResult.IsFailed)
+        {
+            return Result.Fail(archiveResult.Errors);
         }
 
         var deleteResult = await _accountManager.DeleteAccountAsync(account.Value);
@@ -161,7 +176,20 @@ public class AccountService:IAccountService
             }
         }
 
-        var transferResult = await _accountManager.TransferToMainAsync(accountId);
+        var mainAccountResult = _accountManager.GetMainAccount(account.Value.CustomerId);
+        if (mainAccountResult.IsFailed)
+        {
+            return Result.Fail(mainAccountResult.Errors);
+        }
+
+        var transactionResult = await _transactionManager.CreateTransaction(
+            account.Value.AccountId,mainAccountResult.Value.AccountId,account.Value.Balance,default,1);
+        if (transactionResult.IsFailed)
+        {
+            return Result.Fail(transactionResult.Errors);
+        }
+
+        var transferResult = await _accountManager.TransferToMainAsync(transactionResult.Value);
         if (transferResult.IsFailed)
         {
             return Result.Fail(transferResult.Errors);

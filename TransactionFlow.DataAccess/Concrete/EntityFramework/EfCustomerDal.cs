@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TransactionFlow.Core.Constants;
 using TransactionFlow.Core.DataAccess.EntityFramework;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.DataAccess.Concrete.EntityFramework.Contexts;
@@ -6,7 +7,7 @@ using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.DataAccess.Concrete.EntityFramework;
 
-public class EfCustomerDal:EfEntityRepositoryBase<Customer,TransactionContext>,ICustomerDal
+public class EfCustomerDal : EfEntityRepositoryBase<Customer, TransactionContext>, ICustomerDal
 {
     public List<CustomerAccount> GetAccounts(Customer customer)
     {
@@ -26,25 +27,31 @@ public class EfCustomerDal:EfEntityRepositoryBase<Customer,TransactionContext>,I
     {
         return await GetAccountsByIdAsync(customerId);
     }
-    
-    
+
+    public Customer GetCustomerWithAccounts(int customerId)
+    {
+        using (var context = new TransactionContext())
+        {
+            return context.Customers.Include(c => c.CustomerAccounts).FirstOrDefault(c => c.Id == customerId);
+        }
+    }
+
     private static async Task<List<CustomerAccount>> GetAccountsByIdAsync(int customerId)
     {
         await using (var context = new TransactionContext())
         {
-            //Temporary try-catch
-            //Test here
-            try
+            var customer = await context.Customers
+                .Include(c => c.CustomerAccounts)
+                .FirstOrDefaultAsync(c => c.Id == customerId);
+
+            if (customer != null && customer.CustomerAccounts != null)
             {
-                var customers = await context.CustomerAccounts.Where(ca => ca.CustomerId == customerId)
-                    .OrderByDescending(ca => ca.AccountId).ToListAsync();
-                return customers;
+                return customer.CustomerAccounts.ToList();
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                throw;
-            }
+
+            throw new NullReferenceException();
         }
     }
+
+
 }

@@ -49,5 +49,11 @@ public class AutoMapperProfile:Profile
         
         CreateMap<CustomerAccountArchive, CustomerAccountArchiveModel>();
         CreateMap<CustomerAccountArchiveModel, CustomerAccountArchive>();
+        
+        CreateMap<Transaction, TransactionModel>();
+        CreateMap<TransactionModel, Transaction>();
+        
+        CreateMap<TransactionDetails, TransactionModel>();
+        CreateMap<TransactionModel, TransactionDetails>();
     }
 }
