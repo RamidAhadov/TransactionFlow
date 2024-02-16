@@ -25,7 +25,7 @@ public class CustomerController:ControllerBase
         var result = await _accountService.CreateCustomerAsync(customer);
         if (result.IsFailed)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Reasons);
         }
 
         return Ok();
@@ -38,7 +38,7 @@ public class CustomerController:ControllerBase
         var result = await _accountService.DeleteCustomerAsync(customerId);
         if (result.IsFailed)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Reasons);
         }
 
         return Ok();
@@ -49,6 +49,11 @@ public class CustomerController:ControllerBase
     [Route(nameof(GetCustomerById))]
     public IActionResult GetCustomerById(int id)
     {
+        var result = _accountService.GetCustomer(id);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
+        }
         
         return Ok();
     }

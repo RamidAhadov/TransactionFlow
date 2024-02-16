@@ -225,4 +225,15 @@ public class AccountService:IAccountService
 
         return Result.Ok();
     }
+
+    public Result<CustomerModel> GetCustomer(int customerId)
+    {
+        var customerResult = _customerManager.GetCustomerWithAccounts(customerId);
+        if (customerResult.IsFailed)
+        {
+            return Result.Fail(customerResult.Errors);
+        }
+        
+        return Result.Ok(customerResult.Value);
+    }
 }
