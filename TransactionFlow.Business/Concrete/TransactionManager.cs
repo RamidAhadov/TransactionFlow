@@ -100,11 +100,10 @@ public class TransactionManager:ITransactionManager
         };
         try
         {
-            //TODO - Error
             return Result.Ok<TransactionModel>(_mapper.Map<TransactionModel>(
                 await _transactionDal.AddAsync(_mapper.Map<Transaction>(transactionModel))));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return Result.Fail(ErrorMessages.TransactionNotCreated);
         }

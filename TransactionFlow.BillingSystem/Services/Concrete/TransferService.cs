@@ -21,28 +21,28 @@ public class TransferService:ITransferService
 
     public async Task<Result> TransferMoneyAsync(TransferDto transferDto,TransferConditions conditions)
     {
-        Task<Result<List<CustomerAccountModel>>> senderAccountsResult;
-        Task<Result<List<CustomerAccountModel>>> receiverAccountsResult;
+        Result<List<CustomerAccountModel>>? senderAccountsResult;
+        Result<List<CustomerAccountModel>>? receiverAccountsResult;
         
-        FilterAccountsByCondition(out senderAccountsResult,out receiverAccountsResult,transferDto,conditions);
+        (senderAccountsResult,receiverAccountsResult) = await FilterAccountsByCondition(transferDto,conditions);
         
-        senderAccountsResult = _accountManager.GetAccountsAsync(transferDto.SenderId);
+        //senderAccountsResult = _accountManager.GetAccountsAsync(transferDto.SenderId);
         
-        receiverAccountsResult = _accountManager.GetAccountsAsync(transferDto.ReceiverId);
+        //receiverAccountsResult = _accountManager.GetAccountsAsync(transferDto.ReceiverId);
 
-        await Task.WhenAll(senderAccountsResult, receiverAccountsResult);
+        //await Task.WhenAll( senderAccountsResult, receiverAccountsResult);
         
-        if (senderAccountsResult.Result.IsFailed)
+        if (senderAccountsResult.IsFailed)
         {
-            return Result.Fail(senderAccountsResult.Result.Errors);
+            return Result.Fail(senderAccountsResult.Errors);
         }
         
-        if (receiverAccountsResult.Result.IsFailed)
+        if (receiverAccountsResult.IsFailed)
         {
-            return Result.Fail(receiverAccountsResult.Result.Errors);
+            return Result.Fail(receiverAccountsResult.Errors);
         }
 
-        var participantIds = GetConditionalIds(senderAccountsResult.Result.Value,receiverAccountsResult.Result.Value,transferDto,conditions);
+        var participantIds = GetConditionalIds(senderAccountsResult.Value,receiverAccountsResult.Value,transferDto,conditions);
         var conditionalErrorResult = ConditionErrorHandling(participantIds, conditions);
         if (conditionalErrorResult.IsFailed)
         {
@@ -126,29 +126,66 @@ public class TransferService:ITransferService
         return Result.Ok();
     }
 
-    private void FilterAccountsByCondition(out Task<Result<List<CustomerAccountModel>>> sender,
-        out Task<Result<List<CustomerAccountModel>>> receiver, TransferDto transferDto, TransferConditions conditions)
+    private async Task<(Result<List<CustomerAccountModel>> Sender, Result<List<CustomerAccountModel>> Receiver)> FilterAccountsByCondition(TransferDto transferDto, TransferConditions conditions)
+    {
+        Task<Result<List<CustomerAccountModel>>> senderAccountsTask;
+        Task<Result<List<CustomerAccountModel>>> receiverAccountsTask;
+
+        switch (conditions)
+        {
+            case TransferConditions.CToC:
+                senderAccountsTask = _accountManager.GetAccountsAsync(transferDto.SenderId);
+                receiverAccountsTask = _accountManager.GetAccountsAsync(transferDto.ReceiverId);
+                break;
+            case TransferConditions.AToA:
+                senderAccountsTask = _accountManager.GetAccountsByAccountAsync(transferDto.SenderId);
+                receiverAccountsTask = _accountManager.GetAccountsByAccountAsync(transferDto.ReceiverId);
+                break;
+            case TransferConditions.CToA:
+                senderAccountsTask = _accountManager.GetAccountsAsync(transferDto.SenderId);
+                receiverAccountsTask = _accountManager.GetAccountsByAccountAsync(transferDto.ReceiverId);
+                break;
+            case TransferConditions.AToC:
+                senderAccountsTask = _accountManager.GetAccountsByAccountAsync(transferDto.SenderId);
+                receiverAccountsTask = _accountManager.GetAccountsAsync(transferDto.ReceiverId);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(conditions), conditions, null);
+        }
+
+        await Task.WhenAll(senderAccountsTask, receiverAccountsTask);
+
+        return ( senderAccountsTask.Result, receiverAccountsTask.Result);
+    }
+
+
+    
+    private async Task FilterAccountsByCondition1( Result<List<CustomerAccountModel>> sender,
+         Result<List<CustomerAccountModel>> receiver,
+        TransferDto transferDto,
+        TransferConditions conditions)
     {
         switch (conditions)
         {
             case TransferConditions.CToC:
-                sender = _accountManager.GetAccountsAsync(transferDto.SenderId);
-                receiver = _accountManager.GetAccountsAsync(transferDto.ReceiverId);
+                sender = await _accountManager.GetAccountsAsync(transferDto.SenderId);
+                receiver = await _accountManager.GetAccountsAsync(transferDto.ReceiverId);
                 break;
             case TransferConditions.AToA:
-                sender = _accountManager.GetAccountsByAccountAsync(transferDto.SenderId);
-                receiver = _accountManager.GetAccountsByAccountAsync(transferDto.ReceiverId);
+                sender = await _accountManager.GetAccountsByAccountAsync(transferDto.SenderId);
+                receiver = await _accountManager.GetAccountsByAccountAsync(transferDto.ReceiverId);
                 break;
             case TransferConditions.CToA:
-                sender = _accountManager.GetAccountsAsync(transferDto.SenderId);
-                receiver = _accountManager.GetAccountsByAccountAsync(transferDto.ReceiverId);
+                sender = await _accountManager.GetAccountsAsync(transferDto.SenderId);
+                receiver = await _accountManager.GetAccountsByAccountAsync(transferDto.ReceiverId);
                 break;
             case TransferConditions.AToC:
-                sender = _accountManager.GetAccountsByAccountAsync(transferDto.SenderId);
-                receiver = _accountManager.GetAccountsAsync(transferDto.ReceiverId);
+                sender = await _accountManager.GetAccountsByAccountAsync(transferDto.SenderId);
+                receiver = await _accountManager.GetAccountsAsync(transferDto.ReceiverId);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(conditions), conditions, null);
         }
     }
+
 }
