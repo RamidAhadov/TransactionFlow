@@ -9,4 +9,5 @@ public interface ICustomerDal:IEntityRepository<Customer>
     Task<List<CustomerAccount>> GetAccountsAsync(Customer customer);
     Task<List<CustomerAccount>> GetAccountsAsync(int customerId);
     Customer GetCustomerWithAccounts(int customerId);
+    Task<Customer> GetCustomerWithAccountsAsync(int customerId);
 }

@@ -36,6 +36,15 @@ public class EfCustomerDal : EfEntityRepositoryBase<Customer, TransactionContext
         }
     }
 
+    public async Task<Customer> GetCustomerWithAccountsAsync(int customerId)
+    {
+        await using (var context = new TransactionContext())
+        {
+            return await context.Customers.Include(c => c.CustomerAccounts)
+                .FirstOrDefaultAsync(c => c.Id == customerId);
+        }
+    }
+
     private static async Task<List<CustomerAccount>> GetAccountsByIdAsync(int customerId)
     {
         await using (var context = new TransactionContext())
