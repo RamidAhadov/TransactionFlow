@@ -35,7 +35,7 @@ public class CustomerManager:ICustomerManager
         {
             return Result.Fail(ErrorMessages.NullObjectEntered);
         }
-            
+        
         try
         {
             _customerDal.Add(_mapper.Map<Customer>(customer));
@@ -170,11 +170,15 @@ public class CustomerManager:ICustomerManager
     {
         try
         {
-            return Result.Ok(_mapper.Map<CustomerModel>(_customerDal.GetCustomerWithAccounts(customerId)));
+            var customer = _customerDal.GetCustomerWithAccounts(customerId);
+            var model = _mapper.Map<CustomerModel>(customer);
+            model.Accounts = _mapper.Map<List<CustomerAccountModel>>(customer.CustomerAccounts);
+            model.MaxAllowedAccounts = _details.MaxAllowedAccounts;
+            return Result.Ok(model);
         }
         catch (Exception)
         {
-            return Result.Fail(ErrorMessages.AccountNotFound);
+            return Result.Fail(ErrorMessages.AccountsNotFound);
         }
     }
 }
