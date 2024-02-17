@@ -6,6 +6,7 @@ namespace TransactionFlow.Business.Abstraction;
 
 public interface ITransactionManager
 {
+    Result<List<TransactionModel>> GetTransactions(int count);
     Result<List<Transaction>> GetTransactions(Customer customer, int? count);
     Result<List<Transaction>> GetSentTransactions(Customer customer, int? count);
     Result<List<Transaction>> GetReceivedTransactions(Customer customer, int? count);

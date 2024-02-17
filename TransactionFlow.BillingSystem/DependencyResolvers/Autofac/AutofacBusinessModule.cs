@@ -5,7 +5,6 @@ using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Business.Concrete;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.DataAccess.Concrete.EntityFramework;
-using TransactionFlow.DataAccess.Concrete.EntityFramework.Contexts;
 
 namespace TransactionFlow.BillingSystem.DependencyResolvers.Autofac;
 
@@ -29,5 +28,6 @@ public class AutofacBusinessModule:Module
         //Services
         builder.RegisterType<TransferService>().As<ITransferService>();
         builder.RegisterType<AccountService>().As<IAccountService>();
+        builder.RegisterType<TransactionService>().As<ITransactionService>();
     }
 }

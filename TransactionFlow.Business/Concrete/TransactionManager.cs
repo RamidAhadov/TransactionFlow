@@ -20,6 +20,23 @@ public class TransactionManager:ITransactionManager
         _mapper = mapper;
     }
 
+    public Result<List<TransactionModel>> GetTransactions(int count)
+    {
+        if (count < 0)
+        {
+            return Result.Fail(ErrorMessages.IncorrectFormat);
+        }
+
+        try
+        {
+            return Result.Ok(count == 0 ? _mapper.Map<List<TransactionModel>>(_transactionDal.GetList()) : _mapper.Map<List<TransactionModel>>(_transactionDal.GetTransactions(count)));
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.CannotGetTransactions);
+        }
+    }
+
     [Description(description:"Count describes last *count transaction(s)")]
     public Result<List<Transaction>> GetTransactions(Customer customer,int? count)
     {

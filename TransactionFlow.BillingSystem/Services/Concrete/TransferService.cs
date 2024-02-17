@@ -26,12 +26,6 @@ public class TransferService:ITransferService
         
         (senderAccountsResult,receiverAccountsResult) = await FilterAccountsByCondition(transferDto,conditions);
         
-        //senderAccountsResult = _accountManager.GetAccountsAsync(transferDto.SenderId);
-        
-        //receiverAccountsResult = _accountManager.GetAccountsAsync(transferDto.ReceiverId);
-
-        //await Task.WhenAll( senderAccountsResult, receiverAccountsResult);
-        
         if (senderAccountsResult.IsFailed)
         {
             return Result.Fail(senderAccountsResult.Errors);
@@ -157,35 +151,4 @@ public class TransferService:ITransferService
 
         return ( senderAccountsTask.Result, receiverAccountsTask.Result);
     }
-
-
-    
-    private async Task FilterAccountsByCondition1( Result<List<CustomerAccountModel>> sender,
-         Result<List<CustomerAccountModel>> receiver,
-        TransferDto transferDto,
-        TransferConditions conditions)
-    {
-        switch (conditions)
-        {
-            case TransferConditions.CToC:
-                sender = await _accountManager.GetAccountsAsync(transferDto.SenderId);
-                receiver = await _accountManager.GetAccountsAsync(transferDto.ReceiverId);
-                break;
-            case TransferConditions.AToA:
-                sender = await _accountManager.GetAccountsByAccountAsync(transferDto.SenderId);
-                receiver = await _accountManager.GetAccountsByAccountAsync(transferDto.ReceiverId);
-                break;
-            case TransferConditions.CToA:
-                sender = await _accountManager.GetAccountsAsync(transferDto.SenderId);
-                receiver = await _accountManager.GetAccountsByAccountAsync(transferDto.ReceiverId);
-                break;
-            case TransferConditions.AToC:
-                sender = await _accountManager.GetAccountsByAccountAsync(transferDto.SenderId);
-                receiver = await _accountManager.GetAccountsAsync(transferDto.ReceiverId);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(conditions), conditions, null);
-        }
-    }
-
 }

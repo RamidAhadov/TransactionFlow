@@ -7,6 +7,14 @@ namespace TransactionFlow.DataAccess.Concrete.EntityFramework;
 
 public class EfTransactionDal:EfEntityRepositoryBase<Transaction,TransactionContext>,ITransactionDal
 {
+    public List<Transaction> GetTransactions(int count)
+    {
+        using (var context = new TransactionContext())
+        {
+            return context.Transactions.OrderByDescending(t => t.Id).Take(count).ToList();
+        }
+    }
+
     public List<Transaction> GetTransactions(Customer customer, int? count)
     {
         using var context = new TransactionContext();
