@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
+using TransactionFlow.Core.Constants;
 
 namespace TransactionFlow.BillingSystem.Controllers;
 
@@ -69,11 +71,61 @@ public class AccountController:ControllerBase
         return Ok();
     }
     
-    [Route(nameof(TransferMoneyAsync))]
+    //CtoC - From customer to customer. 
+    //Deducts amount + fee from sender customer's main account and adds to receiver customer's main account.
+    [Route(nameof(TransferMoneyCToCAsync))]
     [HttpPost]
-    public async Task<IActionResult> TransferMoneyAsync(int sender, int receiver, decimal amount, decimal fee)
+    public async Task<IActionResult> TransferMoneyCToCAsync(TransferDto transferDto)
     {
-        var result = await _transferService.TransferMoneyAsync(sender, receiver, amount, fee);
+        var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.CToC);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
+        }
+
+        return Ok();
+    }
+    
+    //AToA - From account to account.
+    //Deducts amount + fee from sender customer's certain account and adds to
+    //receiver customer's certain account.
+    [Route(nameof(TransferMoneyAToAAsync))]
+    [HttpPost]
+    public async Task<IActionResult> TransferMoneyAToAAsync(TransferDto transferDto)
+    {
+        var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.AToA);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
+        }
+
+        return Ok();
+    }
+    
+    //CToA - From account to account.
+    //Deducts amount + fee from sender customer's main account and adds to
+    //receiver customer's certain account.
+    [Route(nameof(TransferMoneyCToAsync))]
+    [HttpPost]
+    public async Task<IActionResult> TransferMoneyCToAsync(TransferDto transferDto)
+    {
+        var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.CToA);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
+        }
+
+        return Ok();
+    }
+    
+    //AToC - From account to account.
+    //Deducts amount + fee from sender customer's certain account and adds to
+    //receiver customer's main account.
+    [Route(nameof(TransferMoneyAToCAsync))]
+    [HttpPost]
+    public async Task<IActionResult> TransferMoneyAToCAsync(TransferDto transferDto)
+    {
+        var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.AToC);
         if (result.IsFailed)
         {
             return BadRequest(result.Reasons);
