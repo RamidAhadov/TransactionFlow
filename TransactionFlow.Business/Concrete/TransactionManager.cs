@@ -85,12 +85,14 @@ public class TransactionManager:ITransactionManager
         return Result.Ok(list);
     }
 
-    public async Task<Result<TransactionModel>> CreateTransaction(int senderId, int receiverId, decimal amount, decimal serviceFee,short transactionType)
+    public async Task<Result<TransactionModel>> CreateTransactionAsync(TransferParticipants participants, decimal amount, decimal serviceFee, short transactionType)
     {
         var transactionModel = new TransactionModel
         {
-            SenderId = senderId,
-            ReceiverId = receiverId,
+            SenderId = participants.SenderId,
+            SenderAccountId = participants.SenderAccountId,
+            ReceiverId = participants.ReceiverId,
+            ReceiverAccountId = participants.ReceiverAccountId,
             TransactionAmount = amount,
             ServiceFee = serviceFee,
             TransactionStatus = false,
@@ -98,6 +100,7 @@ public class TransactionManager:ITransactionManager
         };
         try
         {
+            //TODO - Error
             return Result.Ok<TransactionModel>(_mapper.Map<TransactionModel>(
                 await _transactionDal.AddAsync(_mapper.Map<Transaction>(transactionModel))));
         }
