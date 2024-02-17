@@ -104,12 +104,17 @@ public class EfCustomerAccountDal:EfEntityRepositoryBase<CustomerAccount,Transac
             {
                 try
                 {
-                    var senderAccount = await dbContext.CustomerAccounts.SingleOrDefaultAsync(ca=>ca.AccountId == transactionDetails.SenderId);
+                    var senderAccount = await dbContext.CustomerAccounts.SingleOrDefaultAsync(ca=>ca.AccountId == transactionDetails.SenderAccountId);
                     var receiverAccount =
                         await dbContext.CustomerAccounts.SingleOrDefaultAsync(ca =>
-                            ca.AccountId == transactionDetails.ReceiverId);
+                            ca.AccountId == transactionDetails.ReceiverAccountId);
+
+                    if (senderAccount == null || receiverAccount == null)
+                    {
+                        throw new NullReferenceException(ErrorMessages.AccountNotFound);
+                    }
                     
-                    TransferAmount(senderAccount,receiverAccount, transactionDetails.TransactionAmount);
+                    TransferAmount(senderAccount,receiverAccount, transactionDetails.TransactionAmount,transactionDetails.ServiceFee);
 
                     var transactionRecord =
                         await dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == transactionDetails.Id);

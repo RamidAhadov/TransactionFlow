@@ -28,12 +28,14 @@ public class CustomerAccountManager:IAccountManager
             CustomerId = customerModel.Id,
             Balance = 100,
             IsActive = true,
-            IsMain = !await HasAccount(customerModel)
+            IsMain = !await HasAccount(customerModel),
+            CreatedDate = DateTime.Now
         };
 
         try
         {
-            await _customerAccountDal.AddAsync(_mapper.Map<CustomerAccount>(accountModel));
+            var newAccount = _mapper.Map<CustomerAccount>(accountModel);
+            await _customerAccountDal.AddAsync(newAccount);
             return Result.Ok();
         }
         catch (Exception)
@@ -79,23 +81,11 @@ public class CustomerAccountManager:IAccountManager
                 return Result.Fail(ErrorMessages.AccountNotFound);
             }
             
-            return Result.Ok();
+            return Result.Ok(accounts);
         }
         catch (Exception)
         {
             return Result.Fail(ErrorMessages.AccountsNotFound);
-        }
-    }
-
-    public async Task<Result<CustomerAccountModel>> GetMainAccountAsync(int customerId)
-    {
-        try
-        {
-            return Result.Ok(_mapper.Map<CustomerAccountModel>((await _customerDal.GetCustomerWithAccountsAsync(customerId)).CustomerAccounts.FirstOrDefault(ca => ca.IsMain)));
-        }
-        catch (Exception)
-        {
-            return Result.Fail(ErrorMessages.AccountNotFound);
         }
     }
 

@@ -10,7 +10,6 @@ public interface IAccountManager
     Task<Result<List<CustomerAccountModel>>> GetAccountsAsync(int customerId);
     Result<CustomerAccountModel> GetMainAccount(int customerId);
     Task<Result<List<CustomerAccountModel>>> GetAccountsByAccountAsync(int accountId);
-    Task<Result<CustomerAccountModel>> GetMainAccountAsync(int customerId);
     Task<Result> DeleteAccountAsync(CustomerAccountModel accountModel);
     Result DeleteAccount(List<CustomerAccountModel> accountModels);
     Result<CustomerAccountModel> GetAccount(int accountId);
