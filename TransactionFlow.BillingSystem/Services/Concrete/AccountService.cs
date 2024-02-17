@@ -104,7 +104,7 @@ public class AccountService:IAccountService
 
     public async Task<Result> DeleteAccountAsync(int accountId)
     {
-        var account = await _accountManager.GetAccountAsync(accountId);
+        var account = _accountManager.GetAccount(accountId);
         if (account.IsFailed)
         {
             return Result.Fail(account.Errors);
@@ -124,9 +124,15 @@ public class AccountService:IAccountService
         {
             return Result.Fail(mainAccountResult.Errors);
         }
-        
-        var transactionResult = await _transactionManager.CreateTransaction(
-            account.Value.AccountId,mainAccountResult.Value.AccountId,account.Value.Balance,default,1);
+
+        var transferParticipants = new TransferParticipants
+        {
+            SenderId = account.Value.CustomerId,
+            SenderAccountId = accountId,
+            ReceiverId = account.Value.CustomerId,
+            ReceiverAccountId = mainAccountResult.Value.AccountId
+        };
+        var transactionResult = await _transactionManager.CreateTransactionAsync(transferParticipants,account.Value.Balance,default,1);
         if (transactionResult.IsFailed)
         {
             return Result.Fail(transactionResult.Errors);
@@ -156,7 +162,7 @@ public class AccountService:IAccountService
 
     public async Task<Result> DeactivateAccountAsync(int accountId)
     {
-        var account = await _accountManager.GetAccountAsync(accountId);
+        var account = _accountManager.GetAccount(accountId);
         if (account.IsFailed)
         {
             return Result.Fail(account.Errors);
@@ -181,9 +187,15 @@ public class AccountService:IAccountService
         {
             return Result.Fail(mainAccountResult.Errors);
         }
-
-        var transactionResult = await _transactionManager.CreateTransaction(
-            account.Value.AccountId,mainAccountResult.Value.AccountId,account.Value.Balance,default,1);
+        
+        var transferParticipants = new TransferParticipants
+        {
+            SenderId = account.Value.CustomerId,
+            SenderAccountId = accountId,
+            ReceiverId = account.Value.CustomerId,
+            ReceiverAccountId = mainAccountResult.Value.AccountId
+        };
+        var transactionResult = await _transactionManager.CreateTransactionAsync(transferParticipants,account.Value.Balance,default,1);
         if (transactionResult.IsFailed)
         {
             return Result.Fail(transactionResult.Errors);
@@ -206,7 +218,7 @@ public class AccountService:IAccountService
 
     public async Task<Result> ActivateAccountAsync(int accountId)
     {
-        var account = await _accountManager.GetAccountAsync(accountId);
+        var account = _accountManager.GetAccount(accountId);
         if (account.IsFailed)
         {
             return Result.Fail(account.Errors);
