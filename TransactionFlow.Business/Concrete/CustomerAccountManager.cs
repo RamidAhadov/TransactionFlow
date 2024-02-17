@@ -42,11 +42,11 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public async Task<Result<List<CustomerAccountModel>>> GetAccountsAsync(CustomerModel customerModel)
+    public async Task<Result<List<CustomerAccountModel>>> GetAccountsAsync(int customerId)
     {
         try
         {
-            var accounts = await GetAccountListAsync(customerModel);
+            var accounts = await GetAccountListAsync(customerId);
             return Result.Ok(accounts);
         }
         catch (Exception)
@@ -61,6 +61,37 @@ public class CustomerAccountManager:IAccountManager
         try
         {
             return Result.Ok(_mapper.Map<CustomerAccountModel>(_customerDal.GetCustomerWithAccounts(customerId).CustomerAccounts.FirstOrDefault(ca => ca.IsMain)));
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.AccountNotFound);
+        }
+    }
+
+    public async Task<Result<List<CustomerAccountModel>>> GetAccountsByAccountAsync(int accountId)
+    {
+        var customerId = _customerAccountDal.Get(ca => ca.AccountId == accountId).CustomerId;
+        try
+        {
+            var accounts = await GetAccountListAsync(customerId);
+            if (accounts == null || accounts.Count == 0)
+            {
+                return Result.Fail(ErrorMessages.AccountNotFound);
+            }
+            
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.AccountsNotFound);
+        }
+    }
+
+    public async Task<Result<CustomerAccountModel>> GetMainAccountAsync(int customerId)
+    {
+        try
+        {
+            return Result.Ok(_mapper.Map<CustomerAccountModel>((await _customerDal.GetCustomerWithAccountsAsync(customerId)).CustomerAccounts.FirstOrDefault(ca => ca.IsMain)));
         }
         catch (Exception)
         {
@@ -96,14 +127,14 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    public async Task<Result<CustomerAccountModel>> GetAccountAsync(int accountId)
+    public Result<CustomerAccountModel> GetAccount(int accountId)
     {
         if (accountId==null)
         {
             return Result.Fail(ErrorMessages.NullObjectEntered);
         }
         
-        var account = _mapper.Map<CustomerAccountModel>(await _customerAccountDal.GetAsync(ca => ca.AccountId == accountId));
+        var account = _mapper.Map<CustomerAccountModel>( _customerAccountDal.Get(ca => ca.AccountId == accountId));
 
         if (account == null)
         {
@@ -184,7 +215,21 @@ public class CustomerAccountManager:IAccountManager
             return Result.Fail(ErrorMessages.OperationFailed);
         }
     }
-    
+
+    public async Task<Result> TransferMoneyAsync(TransactionModel transactionModel)
+    {
+        try
+        {
+            await _customerAccountDal.TransferAsync(_mapper.Map<TransactionDetails>(transactionModel));
+
+            return Result.Ok();
+        }
+        catch (Exception e)
+        {
+            return Result.Fail(e.Message);
+        }
+    }
+
     private async Task<bool> HasAccount(CustomerModel customerModel)
     {
         var accountList = await GetAccountListAsync(customerModel);
@@ -194,19 +239,12 @@ public class CustomerAccountManager:IAccountManager
 
     private async Task<List<CustomerAccountModel>> GetAccountListAsync(CustomerModel customerModel)
     {
-        var accounts = _mapper.Map<List<CustomerAccountModel>>(
+        return _mapper.Map<List<CustomerAccountModel>>(
             await _customerDal.GetAccountsAsync(_mapper.Map<Customer>(customerModel)));
-        if (accounts == null || accounts.Count == 0)
-        {
-            throw new NullReferenceException(ErrorMessages.AccountNotFound);
-        }
-
-        return accounts;
     }
     
     private async Task<List<CustomerAccountModel>> GetAccountListAsync(int customerId)
     {
-        return _mapper.Map<List<CustomerAccountModel>>(
-            await _customerDal.GetAccountsAsync(customerId));
+        return _mapper.Map<List<CustomerAccountModel>>(await _customerDal.GetAccountsAsync(customerId));
     }
 }
