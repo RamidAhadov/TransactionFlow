@@ -12,12 +12,14 @@ namespace TransactionFlow.Business.Concrete;
 public class TransactionManager:ITransactionManager
 {
     private ITransactionDal _transactionDal;
+    private ICustomerDal _customerDal;
     private IMapper _mapper;
 
-    public TransactionManager(ITransactionDal transactionDal, IMapper mapper)
+    public TransactionManager(ITransactionDal transactionDal, IMapper mapper, ICustomerDal customerDal)
     {
         _transactionDal = transactionDal;
         _mapper = mapper;
+        _customerDal = customerDal;
     }
 
     public Result<List<TransactionModel>> GetTransactions(int count)
@@ -37,10 +39,71 @@ public class TransactionManager:ITransactionManager
         }
     }
 
+    public Result<List<TransactionModel>> GetSentAccountTransactions(int accountId, int count)
+    {
+        if (count < 0)
+        {
+            return Result.Fail(ErrorMessages.IncorrectFormat);
+        }
+
+        if (accountId <= 0)
+        {
+            return Result.Fail(ErrorMessages.IncorrectFormat);
+        }
+        
+        return SentAccountTransactions(accountId, count);
+    }
+
+    public Result<List<TransactionModel>> GetReceivedAccountTransactions(int accountId, int count)
+    {
+        if (count < 0)
+        {
+            return Result.Fail(ErrorMessages.IncorrectFormat);
+        }
+
+        if (accountId <= 0)
+        {
+            return Result.Fail(ErrorMessages.IncorrectFormat);
+        }
+        
+        return ReceivedAccountTransactions(accountId, count);
+    }
+
+    public Result<List<TransactionModel>> GetSentTransactions(List<CustomerAccountModel> accounts, int count)
+    {
+        if (count < 0)
+        {
+            return Result.Fail(ErrorMessages.IncorrectFormat);
+        }
+        
+        var allTransactions = new List<TransactionModel>();
+        foreach (var customerAccount in accounts)
+        {
+            allTransactions.AddRange(SentAccountTransactions(customerAccount.AccountId,count).Value);
+        }
+        
+        return Result.Ok(allTransactions);
+    }
+
+    public Result<List<TransactionModel>> GetReceivedTransactions(List<CustomerAccountModel> accounts, int count)
+    {
+        if (count < 0)
+        {
+            return Result.Fail(ErrorMessages.IncorrectFormat);
+        }
+        
+        var allTransactions = new List<TransactionModel>();
+        foreach (var customerAccount in accounts)
+        {
+            allTransactions.AddRange(ReceivedAccountTransactions(customerAccount.AccountId,count).Value);
+        }
+        
+        return Result.Ok(allTransactions);
+    }
+
     [Description(description:"Count describes last *count transaction(s)")]
     public Result<List<Transaction>> GetTransactions(Customer customer,int? count)
-    {
-        //_log.Info("This is a log message.");   
+    { 
         if (customer == null)
         {
             return Result.Fail(ErrorMessages.NullObjectEntered);
@@ -137,6 +200,45 @@ public class TransactionManager:ITransactionManager
         catch (Exception e)
         {
             return Result.Fail(ErrorMessages.TransactionStatusError);
+        }
+    }
+    
+    
+    private Result<List<TransactionModel>> ReceivedAccountTransactions(int accountId, int count)
+    {
+        try
+        {
+            var transactions =
+                _mapper.Map<List<TransactionModel>>(_transactionDal.GetReceivedTransactions(accountId, count));
+            if (transactions.Count == 0)
+            {
+                return Result.Ok();
+            }
+            
+            return Result.Ok(transactions);
+        }
+        catch (Exception exception)
+        {
+            return Result.Fail(exception.Message);
+        }
+    }
+    
+    private Result<List<TransactionModel>> SentAccountTransactions(int accountId, int count)
+    {
+        try
+        {
+            var transactions =
+                _mapper.Map<List<TransactionModel>>(_transactionDal.GetSentTransactions(accountId, count));
+            if (transactions.Count == 0)
+            {
+                return Result.Ok();
+            }
+            
+            return Result.Ok(transactions);
+        }
+        catch (Exception exception)
+        {
+            return Result.Fail(exception.Message);
         }
     }
 }

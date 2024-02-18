@@ -26,4 +26,17 @@ public class TransactionsController:ControllerBase
 
         return Ok(result.Value);
     }
+    
+    [Route(nameof(GetCustomerTransactions))]
+    [HttpGet]
+    public IActionResult GetCustomerTransactions(int count)
+    {
+        var result = _transactionService.GetTransactions(count);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
+        }
+
+        return Ok(result.Value);
+    }
 }
