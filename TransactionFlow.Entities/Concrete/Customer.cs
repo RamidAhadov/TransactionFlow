@@ -9,5 +9,5 @@ public class Customer:IEntity
     public string? Address { get; set; }
     public DateTime RegisterDate { get; private set; } = DateTime.Now;
 
-    public List<CustomerAccount> CustomerAccounts { get; set; }
+    public virtual List<CustomerAccount> CustomerAccounts { get; set; }
 }

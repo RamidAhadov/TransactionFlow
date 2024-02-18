@@ -39,6 +39,14 @@ public class TransactionContext:DbContext
             .HasOne(a => a.Customer)
             .WithMany(c => c.CustomerAccounts)
             .HasForeignKey(a => a.CustomerId);
+        modelBuilder.Entity<Transaction>()
+            .HasOne(t => t.CustomerAccount)
+            .WithMany(ca => ca.SentTransactions)
+            .HasForeignKey(t => t.SenderAccountId);
+        modelBuilder.Entity<Transaction>()
+            .HasOne(t => t.CustomerAccount)
+            .WithMany(ca => ca.ReceivedTransactions)
+            .HasForeignKey(t => t.ReceiverAccountId);
     }
 
     public DbSet<Customer> Customers { get; set; }

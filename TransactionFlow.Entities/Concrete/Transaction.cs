@@ -14,4 +14,6 @@ public class Transaction:IEntity
     public decimal ServiceFee { get; set; }
     public short TransactionType { get; set; }
     public bool TransactionStatus { get; set; }
+
+    public CustomerAccount CustomerAccount { get; set; }
 }
