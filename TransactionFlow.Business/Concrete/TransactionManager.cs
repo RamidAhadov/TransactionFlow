@@ -12,14 +12,12 @@ namespace TransactionFlow.Business.Concrete;
 public class TransactionManager:ITransactionManager
 {
     private ITransactionDal _transactionDal;
-    private ICustomerDal _customerDal;
     private IMapper _mapper;
 
-    public TransactionManager(ITransactionDal transactionDal, IMapper mapper, ICustomerDal customerDal)
+    public TransactionManager(ITransactionDal transactionDal, IMapper mapper)
     {
         _transactionDal = transactionDal;
         _mapper = mapper;
-        _customerDal = customerDal;
     }
 
     public Result<List<TransactionModel>> GetTransactions(int count)
@@ -101,70 +99,6 @@ public class TransactionManager:ITransactionManager
         return Result.Ok(allTransactions);
     }
 
-    [Description(description:"Count describes last *count transaction(s)")]
-    public Result<List<Transaction>> GetTransactions(Customer customer,int? count)
-    { 
-        if (customer == null)
-        {
-            return Result.Fail(ErrorMessages.NullObjectEntered);
-        }
-            
-        var list = _transactionDal.GetTransactions(customer,count);
-        if (list == null)
-        {
-            return Result.Fail(ErrorMessages.ObjectNotFound);
-        }
-
-        if (list.Count == 0)
-        {
-            return Result.Fail(InfoMessages.ZeroTransactionFound);
-        }
-            
-        return Result.Ok(list);
-    }
-
-    public Result<List<Transaction>> GetSentTransactions(Customer customer, int? count)
-    {
-        if (customer == null)
-        {
-            return Result.Fail(ErrorMessages.NullObjectEntered);
-        }
-            
-        var list = _transactionDal.GetSentTransactions(customer,count);
-        if (list == null)
-        {
-            return Result.Fail(ErrorMessages.ObjectNotFound);
-        }
-
-        if (list.Count == 0)
-        {
-            return Result.Fail(InfoMessages.ZeroTransactionFound);
-        }
-            
-        return Result.Ok(list);
-    }
-
-    public Result<List<Transaction>> GetReceivedTransactions(Customer customer, int? count)
-    {
-        if (customer == null)
-        {
-            return Result.Fail(ErrorMessages.NullObjectEntered);
-        }
-            
-        var list = _transactionDal.GetReceivedTransactions(customer,count);
-        if (list == null)
-        {
-            return Result.Fail(ErrorMessages.ObjectNotFound);
-        }
-
-        if (list.Count == 0)
-        {
-            return Result.Fail(InfoMessages.ZeroTransactionFound);
-        }
-            
-        return Result.Ok(list);
-    }
-
     public async Task<Result<TransactionModel>> CreateTransactionAsync(TransferParticipants participants, decimal amount, decimal serviceFee, short transactionType)
     {
         var transactionModel = new TransactionModel
@@ -188,21 +122,6 @@ public class TransactionManager:ITransactionManager
             return Result.Fail(ErrorMessages.TransactionNotCreated);
         }
     }
-
-    public async Task<Result> ChangeTransactionStatus(Transaction transaction)
-    {
-        try
-        {
-            transaction.TransactionStatus = true;
-            await _transactionDal.UpdateAsync(transaction);
-            return Result.Ok();
-        }
-        catch (Exception e)
-        {
-            return Result.Fail(ErrorMessages.TransactionStatusError);
-        }
-    }
-    
     
     private Result<List<TransactionModel>> ReceivedAccountTransactions(int accountId, int count)
     {

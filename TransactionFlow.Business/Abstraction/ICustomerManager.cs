@@ -12,8 +12,6 @@ public interface ICustomerManager
     Result Delete(int id);
     Result Delete(CustomerModel customerModel);
     Task<Result<CustomerModel>> CreateAsync(CustomerModel customerModel);
-    Task<Result<CustomerModel>> DeleteCustomerAsync(int customerId);
-    Task<Result<CustomerModel>> DeleteCustomerAsync(CustomerModel customerModel);
     Result<CustomerModel> GetCustomerById(int id);
     Result<CustomerModel> GetCustomerWithAccounts(int customerId);
 }

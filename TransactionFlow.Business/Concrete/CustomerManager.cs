@@ -110,43 +110,6 @@ public class CustomerManager:ICustomerManager
         return Result.Ok(_mapper.Map<CustomerModel>(createdCustomer));
     }
 
-    public async Task<Result<CustomerModel>> DeleteCustomerAsync(int customerId)
-    {
-        if (customerId <= 0)
-        {
-            return Result.Fail(ErrorMessages.IndexOutOfTheRange);
-        }
-            
-        var customer = _customerDal.Get(c => c.Id == customerId);
-        if (customer == null)
-        {
-            return Result.Fail(ErrorMessages.ObjectNotFound);
-        }
-        
-        try
-        {
-            await _customerDal.DeleteAsync(customer);
-            return Result.Ok(_mapper.Map<CustomerModel>(customer));
-        }
-        catch (Exception)
-        {
-            return Result.Fail(ErrorMessages.OperationFailed);
-        }
-    }
-
-    public async Task<Result<CustomerModel>> DeleteCustomerAsync(CustomerModel customerModel)
-    {
-        try
-        {
-            await _customerDal.DeleteAsync(_mapper.Map<Customer>(customerModel));
-            return Result.Ok(_mapper.Map<CustomerModel>(customerModel));
-        }
-        catch (Exception)
-        {
-            return Result.Fail(ErrorMessages.OperationFailed);
-        }
-    }
-
     public Result<CustomerModel> GetCustomerById(int id)
     {
         if (id <= 0)
