@@ -18,12 +18,12 @@ public class AccountController:ControllerBase
         _transferService = transferService;
         _accountService = accountService;
     }
-
-    [Route(nameof(CreateAccountAsync))]
+    
+    [Route(nameof(CreateAccount))]
     [HttpPost]
-    public async Task<IActionResult> CreateAccountAsync(int customerId)
+    public IActionResult CreateAccount(int customerId)
     {
-        var result = await _accountService.CreateAccountAsync(customerId);
+        var result = _accountService.CreateAccount(customerId);
         if (result.IsFailed)
         {
             return BadRequest(result.Reasons);

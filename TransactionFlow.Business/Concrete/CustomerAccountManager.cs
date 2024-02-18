@@ -21,6 +21,29 @@ public class CustomerAccountManager:IAccountManager
         _mapper = mapper;
     }
 
+    public Result CreateAccount(CustomerModel customerModel)
+    {
+        var accountModel = new CustomerAccountModel
+        {
+            CustomerId = customerModel.Id,
+            Balance = 100,
+            IsActive = true,
+            IsMain = !HasAccount(customerModel),
+            CreatedDate = DateTime.Now
+        };
+
+        try
+        {
+            var newAccount = _mapper.Map<CustomerAccount>(accountModel);
+            _customerAccountDal.Add(newAccount);
+            return Result.Ok();
+        }
+        catch (Exception)
+        {
+            return Result.Fail(ErrorMessages.AccountNotCreated);
+        }
+    }
+
     public async Task<Result> CreateAccountAsync(CustomerModel customerModel)
     {
         var accountModel = new CustomerAccountModel
@@ -28,7 +51,7 @@ public class CustomerAccountManager:IAccountManager
             CustomerId = customerModel.Id,
             Balance = 100,
             IsActive = true,
-            IsMain = !await HasAccount(customerModel),
+            IsMain = !await HasAccountAsync(customerModel),
             CreatedDate = DateTime.Now
         };
 
@@ -220,7 +243,14 @@ public class CustomerAccountManager:IAccountManager
         }
     }
 
-    private async Task<bool> HasAccount(CustomerModel customerModel)
+    private bool HasAccount(CustomerModel customerModel)
+    {
+        var accountList = GetAccountList(customerModel);
+
+        return accountList.Count != 0;
+    }
+    
+    private async Task<bool> HasAccountAsync(CustomerModel customerModel)
     {
         var accountList = await GetAccountListAsync(customerModel);
 
@@ -236,5 +266,10 @@ public class CustomerAccountManager:IAccountManager
     private async Task<List<CustomerAccountModel>> GetAccountListAsync(int customerId)
     {
         return _mapper.Map<List<CustomerAccountModel>>(await _customerDal.GetAccountsAsync(customerId));
+    }
+
+    private List<CustomerAccountModel> GetAccountList(CustomerModel customerModel)
+    {
+        return _mapper.Map<List<CustomerAccountModel>>(_customerDal.GetAccounts(_mapper.Map<Customer>(customerModel)));
     }
 }

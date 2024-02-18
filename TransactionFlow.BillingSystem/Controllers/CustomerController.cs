@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
-using TransactionFlow.Business.Abstraction;
-using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.BillingSystem.Controllers;
 
@@ -18,6 +15,32 @@ public class CustomerController:ControllerBase
         _accountService = accountService;
     }
 
+    [Route(nameof(GetCustomers))]
+    [HttpGet]
+    public IActionResult GetCustomers()
+    {
+        var result = _accountService.GetAllCustomers();
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
+        }
+
+        return Ok();
+    }
+    
+    [Route(nameof(UpdateCustomer))]
+    [HttpGet]
+    public IActionResult UpdateCustomer(int customerId,CustomerDto customer)
+    {
+        var result = _accountService.UpdateCustomer(customerId, customer);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Reasons);
+        }
+
+        return Ok();
+    }
+    
     [Route(nameof(CreateCustomerAsync))]
     [HttpPost]
     public async Task<IActionResult> CreateCustomerAsync(CustomerDto customer)
@@ -43,7 +66,6 @@ public class CustomerController:ControllerBase
 
         return Ok();
     }
-
 
     [HttpGet]
     [Route(nameof(GetCustomerById))]

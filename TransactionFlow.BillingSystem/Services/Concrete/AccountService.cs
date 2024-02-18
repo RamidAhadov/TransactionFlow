@@ -26,6 +26,17 @@ public class AccountService:IAccountService
         _mapper = mapper;
     }
 
+    public Result<List<CustomerModel>> GetAllCustomers()
+    {
+        var customersResult = _customerManager.GetAllCustomers();
+        if (customersResult.IsFailed)
+        {
+            return Result.Fail(customersResult.Errors);
+        }
+        
+        return Result.Ok(customersResult.Value);
+    }
+
     public async Task<Result> CreateCustomerAsync(CustomerDto customerDto)
     {
         var customerCreateResult = await _customerManager.CreateAsync(_mapper.Map<CustomerModel>(customerDto));
@@ -40,6 +51,19 @@ public class AccountService:IAccountService
             return Result.Fail(accountCreateResult.Errors);
         }
 
+        return Result.Ok();
+    }
+    
+    public Result UpdateCustomer(int customerId, CustomerDto customerDto)
+    {
+        var customerModel = _mapper.Map<CustomerModel>(customerDto);
+        customerModel.Id = customerId;
+        var updateResult = _customerManager.Update(customerModel);
+        if (updateResult.IsFailed)
+        {
+            return Result.Fail(updateResult.Errors);
+        }
+        
         return Result.Ok();
     }
 
@@ -80,7 +104,7 @@ public class AccountService:IAccountService
         return Result.Ok();
     }
 
-    public async Task<Result> CreateAccountAsync(int customerId)
+    public Result CreateAccount(int customerId)
     {
         var customer = _customerManager.GetCustomerWithAccounts(customerId);
         if (customer.IsFailed)
@@ -93,7 +117,7 @@ public class AccountService:IAccountService
             return Result.Fail(ErrorMessages.MaxAllowedAccountsExceed);
         }
 
-        var createdAccountResult = await _accountManager.CreateAccountAsync(customer.Value);
+        var createdAccountResult = _accountManager.CreateAccount(customer.Value);
         if (createdAccountResult.IsFailed)
         {
             return Result.Fail(createdAccountResult.Errors);

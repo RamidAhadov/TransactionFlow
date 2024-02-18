@@ -6,9 +6,11 @@ namespace TransactionFlow.BillingSystem.Services.Abstraction;
 
 public interface IAccountService
 {
+    Result<List<CustomerModel>> GetAllCustomers();
     Task<Result> CreateCustomerAsync(CustomerDto customerDto);
+    Result UpdateCustomer(int customerId, CustomerDto customerDto);
     Task<Result> DeleteCustomerAsync(int customerId);
-    Task<Result> CreateAccountAsync(int customerId);
+    Result CreateAccount(int customerId);
     Task<Result> DeleteAccountAsync(int accountId);
     Task<Result> DeactivateAccountAsync(int accountId);
     Task<Result> ActivateAccountAsync(int accountId);

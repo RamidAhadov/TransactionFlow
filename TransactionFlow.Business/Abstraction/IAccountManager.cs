@@ -6,7 +6,8 @@ namespace TransactionFlow.Business.Abstraction;
 
 public interface IAccountManager
 {
-    Task<Result> CreateAccountAsync(CustomerModel customer);
+    Result CreateAccount(CustomerModel customerModel);
+    Task<Result> CreateAccountAsync(CustomerModel customerModel);
     Task<Result<List<CustomerAccountModel>>> GetAccountsAsync(int customerId);
     Result<CustomerAccountModel> GetMainAccount(int customerId);
     Task<Result<List<CustomerAccountModel>>> GetAccountsByAccountAsync(int accountId);

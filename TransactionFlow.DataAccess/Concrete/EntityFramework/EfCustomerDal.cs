@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using TransactionFlow.Core.Constants;
 using TransactionFlow.Core.DataAccess.EntityFramework;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.DataAccess.Concrete.EntityFramework.Contexts;
@@ -61,6 +60,4 @@ public class EfCustomerDal : EfEntityRepositoryBase<Customer, TransactionContext
             throw new NullReferenceException();
         }
     }
-
-
 }
