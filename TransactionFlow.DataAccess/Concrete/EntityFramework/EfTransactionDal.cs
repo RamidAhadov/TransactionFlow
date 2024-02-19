@@ -22,11 +22,20 @@ public class EfTransactionDal:EfEntityRepositoryBase<Transaction,TransactionCont
     {
         using (var context = new TransactionContext())
         {
-            return count == 0
-                ? context.CustomerAccounts.Include(ca => ca.SentTransactions).FirstOrDefault(ca => ca.AccountId == id)
-                    .SentTransactions.OrderByDescending(t => t.Id).ToList()
-                : context.CustomerAccounts.Include(ca => ca.SentTransactions).FirstOrDefault(ca => ca.AccountId == id)
-                    .SentTransactions.OrderByDescending(t => t.Id).Take(count).ToList();
+            var account = context.CustomerAccounts
+                .Include(ca => ca.SentTransactions)
+                .FirstOrDefault(ca => ca.AccountId == id);
+
+            if (account != null)
+            {
+                var transactions = count == 0
+                    ? account.SentTransactions.OrderByDescending(t => t.Id).ToList()
+                    : account.SentTransactions.OrderByDescending(t => t.Id).Take(count).ToList();
+
+                return transactions;
+            }
+
+            return new List<Transaction>();
         }
     }
 
@@ -34,38 +43,20 @@ public class EfTransactionDal:EfEntityRepositoryBase<Transaction,TransactionCont
     {
         using (var context = new TransactionContext())
         {
-            return count == 0
-                ? context.CustomerAccounts.Include(ca => ca.ReceivedTransactions).FirstOrDefault(ca => ca.AccountId == id)
-                    .ReceivedTransactions.OrderByDescending(t => t.Id).ToList()
-                : context.CustomerAccounts.Include(ca => ca.ReceivedTransactions).FirstOrDefault(ca => ca.AccountId == id)
-                    .ReceivedTransactions.OrderByDescending(t => t.Id).Take(count).ToList();
+            var account = context.CustomerAccounts
+                .Include(ca => ca.ReceivedTransactions)
+                .FirstOrDefault(ca => ca.AccountId == id);
+
+            if (account != null)
+            {
+                var transactions = count == 0
+                    ? account.ReceivedTransactions.OrderByDescending(t => t.Id).ToList()
+                    : account.ReceivedTransactions.OrderByDescending(t => t.Id).Take(count).ToList();
+
+                return transactions;
+            }
+
+            return new List<Transaction>();
         }
-    }
-
-    public List<Transaction> GetTransactions(Customer customer, int? count)
-    {
-        using var context = new TransactionContext();
-        return count == null
-            ? context.Transactions.Where(t => t.SenderId == customer.Id || t.ReceiverId == customer.Id).ToList()
-            : context.Transactions.Where(t => t.SenderId == customer.Id || t.ReceiverId == customer.Id).OrderByDescending(t => t.Id).Take(count.Value)
-                .ToList();
-    }
-
-    public List<Transaction> GetSentTransactions(Customer customer, int? count)
-    {
-        using var context = new TransactionContext();
-        return count == null
-            ? context.Transactions.Where(t => t.SenderId == customer.Id).ToList()
-            : context.Transactions.Where(t => t.SenderId == customer.Id).OrderByDescending(t => t.Id).Take(count.Value)
-                .ToList();
-    }
-
-    public List<Transaction> GetReceivedTransactions(Customer customer, int? count)
-    {
-        using var context = new TransactionContext();
-        return count == null
-            ? context.Transactions.Where(t => t.ReceiverId == customer.Id).ToList()
-            : context.Transactions.Where(t => t.ReceiverId == customer.Id).OrderByDescending(t => t.Id).Take(count.Value)
-                .ToList();
     }
 }

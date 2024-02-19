@@ -40,11 +40,11 @@ public class TransactionContext:DbContext
             .WithMany(c => c.CustomerAccounts)
             .HasForeignKey(a => a.CustomerId);
         modelBuilder.Entity<Transaction>()
-            .HasOne(t => t.CustomerAccount)
+            .HasOne(t => t.SenderAccount)
             .WithMany(ca => ca.SentTransactions)
             .HasForeignKey(t => t.SenderAccountId);
         modelBuilder.Entity<Transaction>()
-            .HasOne(t => t.CustomerAccount)
+            .HasOne(t => t.ReceiverAccount)
             .WithMany(ca => ca.ReceivedTransactions)
             .HasForeignKey(t => t.ReceiverAccountId);
     }
