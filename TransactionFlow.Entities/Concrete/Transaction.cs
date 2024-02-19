@@ -15,5 +15,6 @@ public class Transaction:IEntity
     public short TransactionType { get; set; }
     public bool TransactionStatus { get; set; }
 
-    public CustomerAccount CustomerAccount { get; set; }
+    public CustomerAccount SenderAccount { get; set; }
+    public CustomerAccount ReceiverAccount { get; set; }
 }
