@@ -11,6 +11,6 @@ public class CustomerAccount:IEntity
     public bool IsMain { get; set; }
 
     public Customer Customer { get; set; }
-    public virtual List<Transaction> SentTransactions { get; set; }
-    public virtual List<Transaction> ReceivedTransactions { get; set; }
+    public virtual ICollection<Transaction> SentTransactions { get; set; }
+    public virtual ICollection<Transaction> ReceivedTransactions { get; set; }
 }

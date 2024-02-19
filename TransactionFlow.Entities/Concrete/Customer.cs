@@ -1,3 +1,5 @@
+using System.Collections;
+
 namespace TransactionFlow.Entities.Concrete;
 
 public class Customer:IEntity
@@ -9,5 +11,5 @@ public class Customer:IEntity
     public string? Address { get; set; }
     public DateTime RegisterDate { get; private set; } = DateTime.Now;
 
-    public virtual List<CustomerAccount> CustomerAccounts { get; set; }
+    public virtual ICollection<CustomerAccount> CustomerAccounts { get; set; }
 }
