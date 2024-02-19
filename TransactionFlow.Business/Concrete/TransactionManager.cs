@@ -6,6 +6,7 @@ using TransactionFlow.Business.Models;
 using TransactionFlow.Core.Constants;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.Entities.Concrete;
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
 
 namespace TransactionFlow.Business.Concrete;
 
@@ -77,7 +78,11 @@ public class TransactionManager:ITransactionManager
         var allTransactions = new List<TransactionModel>();
         foreach (var customerAccount in accounts)
         {
-            allTransactions.AddRange(SentAccountTransactions(customerAccount.AccountId,count).Value);
+            var accountTransactions = SentAccountTransactions(customerAccount.AccountId, count).Value;
+            if (accountTransactions.Count != 0)
+            {
+                allTransactions.AddRange(accountTransactions);
+            }
         }
         
         return Result.Ok(allTransactions);
@@ -93,7 +98,11 @@ public class TransactionManager:ITransactionManager
         var allTransactions = new List<TransactionModel>();
         foreach (var customerAccount in accounts)
         {
-            allTransactions.AddRange(ReceivedAccountTransactions(customerAccount.AccountId,count).Value);
+            var accountTransactions = ReceivedAccountTransactions(customerAccount.AccountId, count).Value;
+            if (accountTransactions != null || accountTransactions.Count != 0)
+            {
+                allTransactions.AddRange(accountTransactions);
+            }
         }
         
         return Result.Ok(allTransactions);
@@ -129,10 +138,6 @@ public class TransactionManager:ITransactionManager
         {
             var transactions =
                 _mapper.Map<List<TransactionModel>>(_transactionDal.GetReceivedTransactions(accountId, count));
-            if (transactions.Count == 0)
-            {
-                return Result.Ok();
-            }
             
             return Result.Ok(transactions);
         }
@@ -148,10 +153,6 @@ public class TransactionManager:ITransactionManager
         {
             var transactions =
                 _mapper.Map<List<TransactionModel>>(_transactionDal.GetSentTransactions(accountId, count));
-            if (transactions.Count == 0)
-            {
-                return Result.Ok();
-            }
             
             return Result.Ok(transactions);
         }
