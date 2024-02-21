@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionFlow.Entities", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionFlow.Core", "TransactionFlow.Core\TransactionFlow.Core.csproj", "{F20E8275-0602-42AB-B9FB-F360B069C83B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionFlow.Messaging", "TransactionFlow.Messaging\TransactionFlow.Messaging.csproj", "{67AE6937-9A31-4C76-A944-20506E5A51F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{F20E8275-0602-42AB-B9FB-F360B069C83B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F20E8275-0602-42AB-B9FB-F360B069C83B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F20E8275-0602-42AB-B9FB-F360B069C83B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67AE6937-9A31-4C76-A944-20506E5A51F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67AE6937-9A31-4C76-A944-20506E5A51F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67AE6937-9A31-4C76-A944-20506E5A51F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67AE6937-9A31-4C76-A944-20506E5A51F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
