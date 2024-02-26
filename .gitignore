@@ -13,8 +13,8 @@
 .idea/riderModuleManager.xml
 
 # Build files
-*/bin/
-*/obj/
+bin/
+obj/
 
 # Rider-specific files
 *.suo
