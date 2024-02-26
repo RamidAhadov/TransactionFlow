@@ -1,2 +1,0 @@
-2024-02-04 12:19:00,459 [14] INFO  TransactionFlow.Business.Concrete.CustomerService - Bu bir info log mesajıdır.
-2024-02-04 12:22:40,378 [9] INFO  TransactionFlow.Business.Concrete.CustomerService - Bu bir info log mesajıdır.
