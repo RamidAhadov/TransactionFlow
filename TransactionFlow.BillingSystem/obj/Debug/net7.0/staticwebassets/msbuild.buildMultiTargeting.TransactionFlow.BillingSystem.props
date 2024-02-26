@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/TransactionFlow.BillingSystem.props" />
+</Project>

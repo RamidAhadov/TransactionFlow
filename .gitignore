@@ -1,34 +1,31 @@
-# Common IntelliJ Platform excludes
+# JetBrains Rider
+.idea/
 
-# User specific
-**/.idea/**/workspace.xml
-**/.idea/**/tasks.xml
-**/.idea/shelf/*
-**/.idea/dictionaries
-**/.idea/httpRequests/
+# User-specific Rider files
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
 
-# Sensitive or high-churn files
-**/.idea/**/dataSources/
-**/.idea/**/dataSources.ids
-**/.idea/**/dataSources.xml
-**/.idea/**/dataSources.local.xml
-**/.idea/**/sqlDataSources.xml
-**/.idea/**/dynamic.xml
+# Generated files
+.idea/*-modules.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/riderModuleManager.xml
 
-# Rider
-# Rider auto-generates .iml files, and contentModel.xml
-**/.idea/**/*.iml
-**/.idea/**/contentModel.xml
-**/.idea/**/modules.xml
+# Build files
+/bin/
+/obj/
 
+# Rider-specific files
 *.suo
 *.user
-.vs/
-[Bb]in/
-[Oo]bj/
-_UpgradeReport_Files/
-[Pp]ackages/
+*.ide
+*.idetasks
+*.idestore
 
-Thumbs.db
-Desktop.ini
-.DS_Store
+# Resharper files
+_resharper*
+
+# Rider generated files
+GeneratedFiles/
+out/

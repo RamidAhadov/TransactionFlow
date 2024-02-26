@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "JjP5XAu66ds4XbGYfS9+v89y2Ol2Xx0NNH48aKadsDw=",
+  "Source": "TransactionFlow.BillingSystem",
+  "BasePath": "_content/TransactionFlow.BillingSystem",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "yjG5KFMRA3/YNrlBvZFNkGOyhVOdfC+tYUs4UvAhkLtVmmGyw8bLANZpBlJDqrSyW6htJGbVoOMehe8R1HiIZQ==",
+  "success": true,
+  "projectFilePath": "/Users/macbook/RiderProjects/TransactionFlow/TransactionFlow.Messaging/TransactionFlow.Messaging.csproj",
+  "expectedPackageFiles": [
+    "/Users/macbook/.nuget/packages/confluent.kafka/2.3.0/confluent.kafka.2.3.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/librdkafka.redist/2.3.0/librdkafka.redist.2.3.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/system.memory/4.5.0/system.memory.4.5.0.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.netcore.app.ref/7.0.15/microsoft.netcore.app.ref.7.0.15.nupkg.sha512",
+    "/Users/macbook/.nuget/packages/microsoft.aspnetcore.app.ref/7.0.15/microsoft.aspnetcore.app.ref.7.0.15.nupkg.sha512"
+  ],
+  "logs": []
+}
