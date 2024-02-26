@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TransactionFlow.Entities")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+34dc5c89cb16ef6e7ea0ea4c1ffda8a51578e258")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+84b19fd6fb4042637a4638fd3e89b1ca05fb8f2a")]
 [assembly: System.Reflection.AssemblyProductAttribute("TransactionFlow.Entities")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TransactionFlow.Entities")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
