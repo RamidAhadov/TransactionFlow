@@ -4,11 +4,11 @@ namespace TransactionFlow.BillingSystem.Services.Concrete;
 
 public class SessionService:ISessionService
 {
-    private Dictionary<string, object> cache = new();
+    private Dictionary<string, object?> cache = new();
     
-    public void Set(string key, object value)
+    public void Set(string key, object? value)
     {
-        cache.TryAdd(key, value);
+        cache.TryAdd(key, value ?? default);
     }
 
     public object? Get(string key)
