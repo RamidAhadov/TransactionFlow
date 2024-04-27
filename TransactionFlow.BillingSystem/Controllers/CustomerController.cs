@@ -9,10 +9,12 @@ namespace TransactionFlow.BillingSystem.Controllers;
 public class CustomerController:ControllerBase
 {
     private IAccountService _accountService;
+    private ISessionService _sessionService;
 
-    public CustomerController(IAccountService accountService)
+    public CustomerController(IAccountService accountService, ISessionService sessionService)
     {
         _accountService = accountService;
+        _sessionService = sessionService;
     }
 
     [Route(nameof(GetCustomers))]
@@ -25,17 +27,26 @@ public class CustomerController:ControllerBase
             return BadRequest(result.Reasons);
         }
 
-        return Ok();
+        return Ok(result.Value);
     }
-    
+
     [Route(nameof(UpdateCustomer))]
-    [HttpGet]
-    public IActionResult UpdateCustomer(int customerId,CustomerDto customer)
+    [HttpPost]
+    public IActionResult UpdateCustomer(int customerId, CustomerDto customer)
     {
-        var result = _accountService.UpdateCustomer(customerId, customer);
-        if (result.IsFailed)
+        var key = Request.Headers["Idempotency-key"].ToString();
+
+        var idempotencyResult = _sessionService.Get(key);
+        if (idempotencyResult == null)
         {
-            return BadRequest(result.Reasons);
+            var result = _accountService.UpdateCustomer(customerId, customer);
+            if (result.IsFailed)
+            {
+                return BadRequest(result.Reasons);
+            }
+
+            _sessionService.Set(key);
+            return Ok();
         }
 
         return Ok();
@@ -43,25 +54,43 @@ public class CustomerController:ControllerBase
     
     [Route(nameof(CreateCustomerAsync))]
     [HttpPost]
-    public async Task<IActionResult> CreateCustomerAsync(CustomerDto customer)
+    public async Task<IActionResult> CreateCustomerAsync([FromBody] CustomerDto customer)
     {
-        var result = await _accountService.CreateCustomerAsync(customer);
-        if (result.IsFailed)
+        var key = Request.Headers["Idempotency-key"].ToString();
+
+        var idempotencyResult = _sessionService.Get(key);
+        if (idempotencyResult == null)
         {
-            return BadRequest(result.Reasons);
+            var result = await _accountService.CreateCustomerAsync(customer);
+            if (result.IsFailed)
+            {
+                return BadRequest(result.Reasons);
+            }
+
+            _sessionService.Set(key);
+            return Ok("created!");
         }
 
-        return Ok();
+        return Ok("Already created!");
     }
     
     [Route(nameof(DeleteCustomerAsync))]
     [HttpPost]
-    public async Task<IActionResult> DeleteCustomerAsync(int customerId)
+    public async Task<IActionResult> DeleteCustomerAsync([FromBody] int customerId)
     {
-        var result = await _accountService.DeleteCustomerAsync(customerId);
-        if (result.IsFailed)
+        var key = Request.Headers["Idempotency-key"].ToString();
+
+        var idempotencyResult = _sessionService.Get(key);
+        if (idempotencyResult == null)
         {
-            return BadRequest(result.Reasons);
+            var result = await _accountService.DeleteCustomerAsync(customerId);
+            if (result.IsFailed)
+            {
+                return BadRequest(result.Reasons);
+            }
+
+            _sessionService.Set(key);
+            return Ok();
         }
 
         return Ok();
