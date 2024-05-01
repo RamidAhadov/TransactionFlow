@@ -55,5 +55,11 @@ public class AutoMapperProfile:Profile
         
         CreateMap<TransactionDetails, TransactionModel>();
         CreateMap<TransactionModel, TransactionDetails>();
+
+        CreateMap<IdempotencyKey, IdempotencyKeyModel>();
+        CreateMap<IdempotencyKeyModel, IdempotencyKey>();
+        
+        CreateMap<IdempotencyKeyModel, IdempotencyKeyDto>();
+        CreateMap<IdempotencyKeyDto, IdempotencyKeyModel>();
     }
 }
