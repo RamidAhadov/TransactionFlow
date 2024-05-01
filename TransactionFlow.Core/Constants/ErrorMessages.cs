@@ -25,4 +25,6 @@ public static class ErrorMessages
     public const string AccountNotDeleted = "Account could not be deleted.";
     public const string SenderIsReceiver = "Cannot complete operation. Sender and receiver accounts cannot be same.";
     public const string CannotGetTransactions = "An error occurred while get transactions.";
+    public const string IdempotencyKeySearchError = "An error occurred while searching idempotency key in database.";
+    public const string IdempotencyKeyNotSet = "An error occurred while add idempotency key to database.";
 }

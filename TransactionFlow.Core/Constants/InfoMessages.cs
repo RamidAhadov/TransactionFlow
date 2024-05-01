@@ -8,4 +8,5 @@ public class InfoMessages
     public const string ZeroTransactionFound = "Customer has not any transaction history in given context.";
     public const string InsufficientFund = "You have not enough balance for this operation.";
     public const string InactiveAccount = "Customer's account is not an active account.";
+    public const string KeyNotSet = "Key not set in database.";
 }

@@ -68,10 +68,10 @@ public class CustomerController:ControllerBase
             }
 
             _sessionService.Set(key);
-            return Ok("created!");
+            return Ok();
         }
 
-        return Ok("Already created!");
+        return Ok();
     }
     
     [Route(nameof(DeleteCustomerAsync))]
