@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using AutoMapper;
 using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
@@ -9,7 +10,7 @@ public class SessionService:ISessionService
 {
     private IMemoryManager _memoryManager;
     private IMapper _mapper;
-    private Dictionary<string, object> locks = new();
+    private readonly ConcurrentDictionary<string, object> _locks = new();
 
     public SessionService(IMemoryManager memoryManager, IMapper mapper)
     {
@@ -27,33 +28,29 @@ public class SessionService:ISessionService
 
     public string? Get(string key)
     {
-        var keyResult = _memoryManager.GetValueByKey(key);
-        if (keyResult.IsSuccess)
+        lock (GetLockObject(key))
         {
-            var idempotencyKey = _mapper.Map<IdempotencyKeyDto>(keyResult.Value);
-            if (idempotencyKey != null)
+            var keyResult = _memoryManager.GetValueByKey(key);
+            if (keyResult.IsSuccess)
             {
-                if (idempotencyKey.Value == null)
+                var idempotencyKey = _mapper.Map<IdempotencyKeyDto>(keyResult.Value);
+                if (idempotencyKey != null)
                 {
-                    return string.Empty;
-                }
+                    if (idempotencyKey.Value == null)
+                    {
+                        return string.Empty;
+                    }
                 
-                return idempotencyKey.Value;
+                    return idempotencyKey.Value;
+                }
             }
-        }
 
-        return null;
+            return null;
+        }
     }
     
     private object GetLockObject(string key)
     {
-        lock (locks)
-        {
-            if (!locks.ContainsKey(key))
-            {
-                locks[key] = new object();
-            }
-            return locks[key];
-        }
+        return _locks.GetOrAdd(key, _ => new object());
     }
 }
