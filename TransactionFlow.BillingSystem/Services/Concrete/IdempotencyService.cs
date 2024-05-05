@@ -6,13 +6,13 @@ using TransactionFlow.Business.Abstraction;
 
 namespace TransactionFlow.BillingSystem.Services.Concrete;
 
-public class SessionService:ISessionService
+public class IdempotencyService:IIdempotencyService
 {
     private IMemoryManager _memoryManager;
     private IMapper _mapper;
     private readonly ConcurrentDictionary<string, object> _locks = new();
 
-    public SessionService(IMemoryManager memoryManager, IMapper mapper)
+    public IdempotencyService(IMemoryManager memoryManager, IMapper mapper)
     {
         _memoryManager = memoryManager;
         _mapper = mapper;

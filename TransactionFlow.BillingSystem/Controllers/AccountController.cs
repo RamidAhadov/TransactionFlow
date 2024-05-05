@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
 using TransactionFlow.Core.Constants;
-using TransactionFlow.DataAccess.Abstraction;
 
 namespace TransactionFlow.BillingSystem.Controllers;
 
@@ -13,13 +12,13 @@ public class AccountController:ControllerBase
 {
     private ITransferService _transferService;
     private IAccountService _accountService;
-    private ISessionService _sessionService;
+    private IIdempotencyService _idempotencyService;
 
-    public AccountController(ITransferService transferService, IAccountService accountService, ISessionService sessionService)
+    public AccountController(ITransferService transferService, IAccountService accountService, IIdempotencyService idempotencyService)
     {
         _transferService = transferService;
         _accountService = accountService;
-        _sessionService = sessionService;
+        _idempotencyService = idempotencyService;
     }
     
     [Route(nameof(CreateAccount))]
@@ -28,7 +27,7 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = _accountService.CreateAccount(customerId);
@@ -37,7 +36,7 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(key);
             return Ok();
         }
 
@@ -50,7 +49,7 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = await _accountService.DeleteAccountAsync(accountId);
@@ -59,7 +58,7 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(key);
             return Ok();
         }
 
@@ -72,7 +71,7 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = await _accountService.DeactivateAccountAsync(accountId);
@@ -81,7 +80,7 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(key);
             return Ok();
         }
 
@@ -94,7 +93,7 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = await _accountService.ActivateAccountAsync(accountId);
@@ -103,7 +102,7 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(key);
             return Ok();
         }
 
@@ -118,7 +117,7 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.CToC);
@@ -127,7 +126,7 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(key);
             return Ok();
         }
 
@@ -143,7 +142,7 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.AToA);
@@ -152,7 +151,7 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(key);
             return Ok();
         }
 
@@ -168,7 +167,7 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.CToA);
@@ -177,7 +176,7 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(key);
             return Ok();
         }
 
@@ -193,7 +192,7 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.AToC);
@@ -202,7 +201,7 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(key);
             return Ok();
         }
 
