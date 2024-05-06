@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
@@ -9,12 +10,12 @@ namespace TransactionFlow.BillingSystem.Controllers;
 public class CustomerController:ControllerBase
 {
     private IAccountService _accountService;
-    private ISessionService _sessionService;
+    private IIdempotencyService _idempotencyService;
 
-    public CustomerController(IAccountService accountService, ISessionService sessionService)
+    public CustomerController(IAccountService accountService, IIdempotencyService idempotencyService)
     {
         _accountService = accountService;
-        _sessionService = sessionService;
+        _idempotencyService = idempotencyService;
     }
 
     [Route(nameof(GetCustomers))]
@@ -36,7 +37,7 @@ public class CustomerController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = _accountService.UpdateCustomer(customerId, customer);
@@ -45,7 +46,8 @@ public class CustomerController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, customer);
+
             return Ok();
         }
 
@@ -58,7 +60,7 @@ public class CustomerController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = await _accountService.CreateCustomerAsync(customer);
@@ -67,7 +69,8 @@ public class CustomerController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, customer);
+
             return Ok();
         }
 
@@ -80,7 +83,7 @@ public class CustomerController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
 
-        var idempotencyResult = _sessionService.Get(key);
+        var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
             var result = await _accountService.DeleteCustomerAsync(customerId);
@@ -89,7 +92,8 @@ public class CustomerController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _sessionService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, customerId);
+
             return Ok();
         }
 

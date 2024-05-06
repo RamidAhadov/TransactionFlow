@@ -5,6 +5,6 @@ namespace TransactionFlow.Business.Abstraction;
 
 public interface IMemoryManager
 {
-    Result SetKey(string key);
+    Result SetKey(IdempotencyKeyModel key);
     Result<IdempotencyKeyModel> GetValueByKey(string key);
 }

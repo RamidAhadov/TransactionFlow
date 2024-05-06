@@ -32,6 +32,6 @@ public class AutofacBusinessModule:Module
         builder.RegisterType<TransferService>().As<ITransferService>();
         builder.RegisterType<AccountService>().As<IAccountService>();
         builder.RegisterType<TransactionService>().As<ITransactionService>();
-        builder.RegisterType<SessionService>().As<ISessionService>();
+        builder.RegisterType<IdempotencyService>().As<IIdempotencyService>();
     }
 }
