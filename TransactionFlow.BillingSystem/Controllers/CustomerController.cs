@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
@@ -45,7 +46,8 @@ public class CustomerController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, customer);
+
             return Ok();
         }
 
@@ -67,7 +69,8 @@ public class CustomerController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, customer);
+
             return Ok();
         }
 
@@ -89,7 +92,8 @@ public class CustomerController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, customerId);
+
             return Ok();
         }
 

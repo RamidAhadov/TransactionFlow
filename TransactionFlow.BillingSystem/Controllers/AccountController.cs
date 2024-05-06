@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
@@ -26,7 +27,6 @@ public class AccountController:ControllerBase
     public IActionResult CreateAccount([FromBody] int customerId)
     {
         var key = Request.Headers["Idempotency-key"].ToString();
-
         var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
@@ -36,7 +36,8 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, customerId);
+            
             return Ok();
         }
 
@@ -48,7 +49,6 @@ public class AccountController:ControllerBase
     public async Task<IActionResult> DeleteAccountAsync([FromBody] int accountId)
     {
         var key = Request.Headers["Idempotency-key"].ToString();
-
         var idempotencyResult = _idempotencyService.Get(key);
         if (idempotencyResult == null)
         {
@@ -58,7 +58,8 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, accountId);
+            
             return Ok();
         }
 
@@ -80,7 +81,8 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, accountId);
+            
             return Ok();
         }
 
@@ -102,7 +104,8 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, accountId);
+
             return Ok();
         }
 
@@ -126,7 +129,8 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, transferDto);
+
             return Ok();
         }
 
@@ -151,7 +155,8 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, transferDto);
+
             return Ok();
         }
 
@@ -176,7 +181,8 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, transferDto);
+
             return Ok();
         }
 
@@ -201,7 +207,8 @@ public class AccountController:ControllerBase
                 return BadRequest(result.Reasons);
             }
 
-            _idempotencyService.Set(key);
+            _idempotencyService.Set(Request, HttpStatusCode.OK, transferDto);
+
             return Ok();
         }
 
