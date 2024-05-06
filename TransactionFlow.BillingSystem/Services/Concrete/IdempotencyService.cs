@@ -27,11 +27,6 @@ public class IdempotencyService:IIdempotencyService
     {
         var key = request.Headers["Idempotency-key"].ToString();
         
-        if (!request.Body.CanSeek)
-        {
-            request.EnableBuffering();
-        }
-        
         var idempotencyKey = new IdempotencyKeyDto
         {
             Key = key,
