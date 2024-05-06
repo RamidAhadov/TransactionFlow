@@ -21,17 +21,12 @@ public class MemoryManager:IMemoryManager
     }
 
 
-    public Result SetKey(string key)
+    public Result SetKey(IdempotencyKeyModel key)
     {
-        var idempotencyKey = new IdempotencyKeyModel
-        {
-            Key = key,
-            CreateDate = DateTime.Now
-        };
-
+        key.CreateDate = DateTime.Now;
         try
         {
-            _memoryDal.Add(_mapper.Map<IdempotencyKey>(idempotencyKey));
+            _memoryDal.Add(_mapper.Map<IdempotencyKey>(key));
             
             return Result.Ok();
         }
