@@ -5,5 +5,9 @@ namespace TransactionFlow.BillingSystem.Models.Dtos;
 public class IdempotencyKeyDto:IDto
 {
     public string Key { get; set; }
-    public string Value { get; set; }
+    public string RequestMethod { get; set; }
+    public string RequestPath { get; set; }
+    public string? RequestParameters { get; set; }
+    public int ResponseCode { get; set; }
+    public string? ResponseBody { get; set; }
 }
