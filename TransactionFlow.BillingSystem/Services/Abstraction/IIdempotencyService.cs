@@ -6,5 +6,5 @@ public interface IIdempotencyService
 {
     void Set(HttpRequest request, HttpStatusCode responseCode, object requestBody, string? responseBody = default);
     string? Get(string key);
-    string GenerateKey(string? requestParameters);
+    int GenerateKey();
 }

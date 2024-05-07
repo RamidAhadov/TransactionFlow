@@ -1,7 +1,5 @@
 using System.Collections.Concurrent;
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 using AutoMapper;
 using NuGet.Protocol;
 using TransactionFlow.BillingSystem.Models.Dtos;
@@ -44,8 +42,10 @@ public class IdempotencyService:IIdempotencyService
                 _ = _idempotencyManager.SetKey(_mapper.Map<IdempotencyKeyModel>(idempotencyKey));
             }
         }
-
-        throw new InvalidCastException();
+        else
+        {
+            throw new InvalidCastException();
+        }
     }
 
     public string? Get(string input)
@@ -80,9 +80,10 @@ public class IdempotencyService:IIdempotencyService
         var keyResult = _idempotencyManager.GenerateNewKey();
         if (keyResult.IsFailed)
         {
-            
+            throw new InvalidOperationException();
         }
-        return 1;
+
+        return keyResult.Value;
     }
 
     private object GetLockObject(long key)
