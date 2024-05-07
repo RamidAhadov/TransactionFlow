@@ -75,7 +75,7 @@ public class IdempotencyService:IIdempotencyService
 
         throw new InvalidCastException();
     }
-    public int GenerateKey()
+    public long GenerateKey()
     {
         var keyResult = _idempotencyManager.GenerateNewKey();
         if (keyResult.IsFailed)

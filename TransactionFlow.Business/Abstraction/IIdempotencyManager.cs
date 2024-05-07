@@ -7,5 +7,5 @@ public interface IIdempotencyManager
 {
     Result SetKey(IdempotencyKeyModel key);
     Result<IdempotencyKeyModel> GetValueByKey(long key);
-    Result<int> GenerateNewKey();
+    Result<long> GenerateNewKey();
 }

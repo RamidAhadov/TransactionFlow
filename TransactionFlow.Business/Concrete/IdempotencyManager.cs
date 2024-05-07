@@ -56,7 +56,7 @@ public class IdempotencyManager:IIdempotencyManager
         return Result.Ok(idempotencyKey);
     }
 
-    public Result<int> GenerateNewKey()
+    public Result<long> GenerateNewKey()
     {
         try
         {

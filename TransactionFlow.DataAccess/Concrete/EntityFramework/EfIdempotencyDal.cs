@@ -7,11 +7,14 @@ namespace TransactionFlow.DataAccess.Concrete.EntityFramework;
 
 public class EfIdempotencyDal:EfEntityRepositoryBase<IdempotencyKey,TransactionContext>,IIdempotencyDal
 {
-    public int GenerateKey()
+    public long GenerateKey()
     {
         using (var context = new TransactionContext())
         {
-            var key = new Key();
+            var key = new Key
+            {
+                GenerateDate = DateTime.Now
+            };
             context.GeneratedKeys.Add(key);
             context.SaveChanges();
 
