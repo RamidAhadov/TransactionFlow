@@ -3,7 +3,7 @@ using TransactionFlow.Business.Models;
 
 namespace TransactionFlow.Business.Abstraction;
 
-public interface IMemoryManager
+public interface IIdempotencyManager
 {
     Result SetKey(IdempotencyKeyModel key);
     Result<IdempotencyKeyModel> GetValueByKey(string key);

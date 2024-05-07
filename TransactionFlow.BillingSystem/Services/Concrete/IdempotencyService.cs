@@ -13,13 +13,13 @@ namespace TransactionFlow.BillingSystem.Services.Concrete;
 
 public class IdempotencyService:IIdempotencyService
 {
-    private IMemoryManager _memoryManager;
+    private IIdempotencyManager _idempotencyManager;
     private IMapper _mapper;
     private readonly ConcurrentDictionary<string, object> _locks = new();
 
-    public IdempotencyService(IMemoryManager memoryManager, IMapper mapper)
+    public IdempotencyService(IIdempotencyManager idempotencyManager, IMapper mapper)
     {
-        _memoryManager = memoryManager;
+        _idempotencyManager = idempotencyManager;
         _mapper = mapper;
     }
 
@@ -40,7 +40,7 @@ public class IdempotencyService:IIdempotencyService
         
         lock (GetLockObject(key))
         {
-            _ = _memoryManager.SetKey(_mapper.Map<IdempotencyKeyModel>(idempotencyKey));
+            _ = _idempotencyManager.SetKey(_mapper.Map<IdempotencyKeyModel>(idempotencyKey));
         }
     }
 
@@ -53,7 +53,7 @@ public class IdempotencyService:IIdempotencyService
         
         lock (GetLockObject(key))
         {
-            var keyResult = _memoryManager.GetValueByKey(key);
+            var keyResult = _idempotencyManager.GetValueByKey(key);
             if (keyResult.IsSuccess)
             {
                 var idempotencyKey = _mapper.Map<IdempotencyKeyDto>(keyResult.Value);

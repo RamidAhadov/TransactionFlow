@@ -9,14 +9,14 @@ using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.Business.Concrete;
 
-public class MemoryManager:IMemoryManager
+public class IdempotencyManager:IIdempotencyManager
 {
-    private IMemoryDal _memoryDal;
+    private IIdempotencyDal _idempotencyDal;
     private IMapper _mapper;
     
-    public MemoryManager(IMemoryDal memoryDal, IMapper mapper)
+    public IdempotencyManager(IIdempotencyDal idempotencyDal, IMapper mapper)
     {
-        _memoryDal = memoryDal;
+        _idempotencyDal = idempotencyDal;
         _mapper = mapper;
     }
 
@@ -26,7 +26,7 @@ public class MemoryManager:IMemoryManager
         key.CreateDate = DateTime.Now;
         try
         {
-            _memoryDal.Add(_mapper.Map<IdempotencyKey>(key));
+            _idempotencyDal.Add(_mapper.Map<IdempotencyKey>(key));
             
             return Result.Ok();
         }
@@ -41,7 +41,7 @@ public class MemoryManager:IMemoryManager
         IdempotencyKeyModel? idempotencyKey;
         try
         {
-            idempotencyKey = _mapper.Map<IdempotencyKeyModel>(_memoryDal.Get(i => i.Key == key));
+            idempotencyKey = _mapper.Map<IdempotencyKeyModel>(_idempotencyDal.Get(i => i.Key == key));
         }
         catch (SqlException)
         {
