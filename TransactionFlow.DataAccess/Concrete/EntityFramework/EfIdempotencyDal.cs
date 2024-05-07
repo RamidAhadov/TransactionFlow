@@ -5,7 +5,7 @@ using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.DataAccess.Concrete.EntityFramework;
 
-public class EfMemoryDal:EfEntityRepositoryBase<IdempotencyKey,TransactionContext>,IMemoryDal
+public class EfIdempotencyDal:EfEntityRepositoryBase<IdempotencyKey,TransactionContext>,IIdempotencyDal
 {
     
 }

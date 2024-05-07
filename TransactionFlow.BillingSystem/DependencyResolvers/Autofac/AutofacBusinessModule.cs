@@ -25,8 +25,8 @@ public class AutofacBusinessModule:Module
         builder.RegisterType<EfArchiveDal>().As<IArchiveDal>();
         builder.RegisterType<ArchiveManager>().As<IArchiveManager>();
         
-        builder.RegisterType<EfMemoryDal>().As<IMemoryDal>();
-        builder.RegisterType<MemoryManager>().As<IMemoryManager>();
+        builder.RegisterType<EfIdempotencyDal>().As<IIdempotencyDal>();
+        builder.RegisterType<IdempotencyManager>().As<IIdempotencyManager>();
         
         //Services
         builder.RegisterType<TransferService>().As<ITransferService>();
