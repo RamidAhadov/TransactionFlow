@@ -5,5 +5,5 @@ namespace TransactionFlow.DataAccess.Abstraction;
 
 public interface IIdempotencyDal:IEntityRepository<IdempotencyKey>
 {
-    
+    long GenerateKey();
 }

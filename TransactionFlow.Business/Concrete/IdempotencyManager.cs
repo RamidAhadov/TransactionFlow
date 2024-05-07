@@ -36,7 +36,7 @@ public class IdempotencyManager:IIdempotencyManager
         }
     }
 
-    public Result<IdempotencyKeyModel> GetValueByKey(string key)
+    public Result<IdempotencyKeyModel> GetValueByKey(long key)
     {
         IdempotencyKeyModel? idempotencyKey;
         try
@@ -54,5 +54,17 @@ public class IdempotencyManager:IIdempotencyManager
         }
 
         return Result.Ok(idempotencyKey);
+    }
+
+    public Result<long> GenerateNewKey()
+    {
+        try
+        {
+            return _idempotencyDal.GenerateKey();
+        }
+        catch (SqlException)
+        {
+            return Result.Fail(ErrorMessages.KeyNotGenerated);
+        }
     }
 }

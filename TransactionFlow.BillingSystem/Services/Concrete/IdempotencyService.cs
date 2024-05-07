@@ -1,7 +1,5 @@
 using System.Collections.Concurrent;
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 using AutoMapper;
 using NuGet.Protocol;
 using TransactionFlow.BillingSystem.Models.Dtos;
@@ -13,9 +11,9 @@ namespace TransactionFlow.BillingSystem.Services.Concrete;
 
 public class IdempotencyService:IIdempotencyService
 {
-    private IIdempotencyManager _idempotencyManager;
-    private IMapper _mapper;
-    private readonly ConcurrentDictionary<string, object> _locks = new();
+    private readonly IIdempotencyManager _idempotencyManager;
+    private readonly IMapper _mapper;
+    private readonly ConcurrentDictionary<long, object> _locks = new();
 
     public IdempotencyService(IIdempotencyManager idempotencyManager, IMapper mapper)
     {
@@ -26,82 +24,70 @@ public class IdempotencyService:IIdempotencyService
     public void Set(HttpRequest request, HttpStatusCode responseCode, object requestBody,
         string? responseBody = default)
     {
-        var key = request.Headers["Idempotency-key"].ToString();
-        
-        var idempotencyKey = new IdempotencyKeyDto
+        var headerKey = request.Headers["Idempotency-key"].ToString();
+        if (long.TryParse(headerKey, out long key))
         {
-            Key = key,
-            RequestMethod = request.Method,
-            RequestPath = request.Path,
-            RequestParameters = requestBody.ToJson(),
-            ResponseCode = (int)responseCode,
-            ResponseBody = responseBody
-        };
-        
-        lock (GetLockObject(key))
-        {
-            _ = _idempotencyManager.SetKey(_mapper.Map<IdempotencyKeyModel>(idempotencyKey));
-        }
-    }
-
-    public string? Get(string key)
-    {
-        if (string.IsNullOrEmpty(key))
-        {
-            throw new ArgumentNullException();
-        }
-        
-        lock (GetLockObject(key))
-        {
-            var keyResult = _idempotencyManager.GetValueByKey(key);
-            if (keyResult.IsSuccess)
+            var idempotencyKey = new IdempotencyKeyDto
             {
-                var idempotencyKey = _mapper.Map<IdempotencyKeyDto>(keyResult.Value);
-                if (idempotencyKey != null)
-                {
-                    if (idempotencyKey.ResponseBody == null)
-                    {
-                        return string.Empty;
-                    }
-                
-                    return idempotencyKey.ResponseBody;
-                }
+                Key = key,
+                RequestMethod = request.Method,
+                RequestPath = request.Path,
+                RequestParameters = requestBody.ToJson(),
+                ResponseCode = (int)responseCode,
+                ResponseBody = responseBody
+            };
+        
+            lock (GetLockObject(key))
+            {
+                _ = _idempotencyManager.SetKey(_mapper.Map<IdempotencyKeyModel>(idempotencyKey));
             }
-
-            return null;
+        }
+        else
+        {
+            throw new InvalidCastException();
         }
     }
-    public string GenerateKey(string? requestParameters)
+
+    public string? Get(string input)
     {
-        var key = requestParameters != null ? 
-            ComputeSHA256Hash(requestParameters) : Guid.NewGuid().ToString();
-        key += DateTime.Now.ToString("s");
-        return key;
+        if (long.TryParse(input, out long key))
+        {
+            lock (GetLockObject(key))
+            {
+                var keyResult = _idempotencyManager.GetValueByKey(key);
+                if (keyResult.IsSuccess)
+                {
+                    var idempotencyKey = _mapper.Map<IdempotencyKeyDto>(keyResult.Value);
+                    if (idempotencyKey != null)
+                    {
+                        if (idempotencyKey.ResponseBody == null)
+                        {
+                            return string.Empty;
+                        }
+                
+                        return idempotencyKey.ResponseBody;
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        throw new InvalidCastException();
+    }
+    public long GenerateKey()
+    {
+        var keyResult = _idempotencyManager.GenerateNewKey();
+        if (keyResult.IsFailed)
+        {
+            throw new InvalidOperationException();
+        }
+
+        return keyResult.Value;
     }
 
-    private object GetLockObject(string key)
+    private object GetLockObject(long key)
     {
         return _locks.GetOrAdd(key, _ => new object());
-    }
-    
-    private static string ComputeSHA256Hash(string? input)
-    {
-        if (input == null)
-        {
-            return Guid.NewGuid().ToString();
-        }
-        using (SHA256 sha256 = SHA256.Create())
-        {
-            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-
-            byte[] hashBytes = sha256.ComputeHash(inputBytes);
-
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < hashBytes.Length; i++)
-            {
-                builder.Append(hashBytes[i].ToString("x2"));
-            }
-            return builder.ToString();
-        }
     }
 }

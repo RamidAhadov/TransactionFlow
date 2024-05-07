@@ -16,9 +16,9 @@ namespace TransactionFlow.BillingSystem.Controllers
 
         [Route(nameof(GenerateKey))]
         [HttpGet]
-        public IActionResult GenerateKey(string? requestParameters)
+        public long GenerateKey()
         {
-            return Ok(_idempotencyService.GenerateKey(requestParameters));
+            return _idempotencyService.GenerateKey();
         }
     }
 }

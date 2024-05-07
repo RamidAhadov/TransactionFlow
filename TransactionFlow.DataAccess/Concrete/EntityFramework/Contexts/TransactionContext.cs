@@ -34,6 +34,7 @@ public class TransactionContext:DbContext
         modelBuilder.Entity<CustomerArchive>().HasKey(c => c.CustomerId);
         modelBuilder.Entity<CustomerAccountArchive>().HasKey(c => c.AccountId);
         modelBuilder.Entity<IdempotencyKey>().HasKey(i => i.Id);
+        modelBuilder.Entity<Key>().HasKey(k => k.Id);
         
         //ORM
         modelBuilder.Entity<CustomerAccount>()
@@ -56,6 +57,7 @@ public class TransactionContext:DbContext
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<CustomerAccount> CustomerAccounts { get; set; }
     public DbSet<IdempotencyKey> IdempotencyKeys { get; set; }
+    public DbSet<Key> GeneratedKeys { get; set; }
     
     //Archive tables
     public DbSet<CustomerArchive> CustomersArchive { get; set; }

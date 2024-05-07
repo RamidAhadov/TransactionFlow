@@ -6,5 +6,6 @@ namespace TransactionFlow.Business.Abstraction;
 public interface IIdempotencyManager
 {
     Result SetKey(IdempotencyKeyModel key);
-    Result<IdempotencyKeyModel> GetValueByKey(string key);
+    Result<IdempotencyKeyModel> GetValueByKey(long key);
+    Result<long> GenerateNewKey();
 }

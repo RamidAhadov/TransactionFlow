@@ -4,7 +4,7 @@ namespace TransactionFlow.Business.Models;
 
 public class IdempotencyKeyModel:IBusinessModel
 {
-    public string Key { get; set; }
+    public long Key { get; set; }
     public DateTime CreateDate { get; set; }
     public string RequestMethod { get; set; }
     public string RequestPath { get; set; }
