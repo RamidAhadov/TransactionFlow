@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
 using NuGet.Protocol;
@@ -70,18 +71,37 @@ public class IdempotencyService:IIdempotencyService
             return null;
         }
     }
-    public string GenerateKey()
+    public string GenerateKey(string? requestParameters)
     {
-        throw new NotImplementedException();
-    }
-
-    public string GenerateKey(params string[] parameters)
-    {
-        throw new NotImplementedException();
+        var key = requestParameters != null ? 
+            ComputeSHA256Hash(requestParameters) : Guid.NewGuid().ToString();
+        key += DateTime.Now.ToString("s");
+        return key;
     }
 
     private object GetLockObject(string key)
     {
         return _locks.GetOrAdd(key, _ => new object());
+    }
+    
+    private static string ComputeSHA256Hash(string? input)
+    {
+        if (input == null)
+        {
+            return Guid.NewGuid().ToString();
+        }
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+
+            byte[] hashBytes = sha256.ComputeHash(inputBytes);
+
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < hashBytes.Length; i++)
+            {
+                builder.Append(hashBytes[i].ToString("x2"));
+            }
+            return builder.ToString();
+        }
     }
 }
