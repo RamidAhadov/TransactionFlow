@@ -28,4 +28,5 @@ public static class ErrorMessages
     public const string IdempotencyKeySearchError = "An error occurred while searching idempotency key in database.";
     public const string IdempotencyKeyNotSet = "An error occurred while add idempotency key to database.";
     public const string KeyNotGenerated = "New idempotency key not generated.";
+    public const string WrongKeyFormat = "The format of the key is not a number format.";
 }

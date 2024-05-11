@@ -1,11 +1,13 @@
 using System.Collections.Concurrent;
 using System.Net;
 using AutoMapper;
+using FluentResults;
 using NuGet.Protocol;
 using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
 using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Business.Models;
+using TransactionFlow.Core.Constants;
 
 namespace TransactionFlow.BillingSystem.Services.Concrete;
 
@@ -21,7 +23,7 @@ public class IdempotencyService:IIdempotencyService
         _mapper = mapper;
     }
 
-    public void Set(HttpRequest request, HttpStatusCode responseCode, object requestBody,
+    public Result Set(HttpRequest request, HttpStatusCode responseCode, object requestBody,
         string? responseBody = default)
     {
         var headerKey = request.Headers["Idempotency-key"].ToString();
@@ -39,16 +41,20 @@ public class IdempotencyService:IIdempotencyService
         
             lock (GetLockObject(key))
             {
-                _ = _idempotencyManager.SetKey(_mapper.Map<IdempotencyKeyModel>(idempotencyKey));
+                var setResult = _idempotencyManager.SetKey(_mapper.Map<IdempotencyKeyModel>(idempotencyKey));
+                if (setResult.IsFailed)
+                {
+                    return Result.Fail(setResult.Errors);
+                }
+                
+                return Result.Ok();
             }
         }
-        else
-        {
-            throw new InvalidCastException();
-        }
+        
+        return Result.Fail(ErrorMessages.WrongKeyFormat);
     }
 
-    public string? Get(string input)
+    public Result<string?> Get(string input)
     {
         if (long.TryParse(input, out long key))
         {
@@ -62,28 +68,28 @@ public class IdempotencyService:IIdempotencyService
                     {
                         if (idempotencyKey.ResponseBody == null)
                         {
-                            return string.Empty;
+                            return Result.Ok(string.Empty);
                         }
                 
-                        return idempotencyKey.ResponseBody;
+                        return Result.Ok(idempotencyKey.ResponseBody);
                     }
                 }
 
-                return null;
+                return Result.Ok();
             }
         }
 
-        throw new InvalidCastException();
+        return Result.Fail(ErrorMessages.WrongKeyFormat);
     }
-    public long GenerateKey()
+    public Result<long> GenerateKey()
     {
         var keyResult = _idempotencyManager.GenerateNewKey();
         if (keyResult.IsFailed)
         {
-            throw new InvalidOperationException();
+            return Result.Fail(keyResult.Errors);
         }
 
-        return keyResult.Value;
+        return Result.Ok(keyResult.Value);
     }
 
     private object GetLockObject(long key)
