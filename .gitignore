@@ -22,6 +22,8 @@ obj/
 *.ide
 *.idetasks
 *.idestore
+dockerfile
+.dockerignore
 
 # Resharper files
 _resharper*
