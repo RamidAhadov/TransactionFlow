@@ -28,7 +28,12 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = _accountService.CreateAccount(customerId);
             if (result.IsFailed)
@@ -50,7 +55,12 @@ public class AccountController:ControllerBase
     {
         var key = Request.Headers["Idempotency-key"].ToString();
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = await _accountService.DeleteAccountAsync(accountId);
             if (result.IsFailed)
@@ -73,7 +83,12 @@ public class AccountController:ControllerBase
         var key = Request.Headers["Idempotency-key"].ToString();
 
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = await _accountService.DeactivateAccountAsync(accountId);
             if (result.IsFailed)
@@ -96,7 +111,12 @@ public class AccountController:ControllerBase
         var key = Request.Headers["Idempotency-key"].ToString();
 
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = await _accountService.ActivateAccountAsync(accountId);
             if (result.IsFailed)
@@ -121,7 +141,12 @@ public class AccountController:ControllerBase
         var key = Request.Headers["Idempotency-key"].ToString();
 
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.CToC);
             if (result.IsFailed)
@@ -147,7 +172,12 @@ public class AccountController:ControllerBase
         var key = Request.Headers["Idempotency-key"].ToString();
 
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.AToA);
             if (result.IsFailed)
@@ -173,7 +203,12 @@ public class AccountController:ControllerBase
         var key = Request.Headers["Idempotency-key"].ToString();
 
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.CToA);
             if (result.IsFailed)
@@ -199,7 +234,12 @@ public class AccountController:ControllerBase
         var key = Request.Headers["Idempotency-key"].ToString();
 
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = await _transferService.TransferMoneyAsync(transferDto,TransferConditions.AToC);
             if (result.IsFailed)

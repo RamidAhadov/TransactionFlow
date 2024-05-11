@@ -1,10 +1,11 @@
 using System.Net;
+using FluentResults;
 
 namespace TransactionFlow.BillingSystem.Services.Abstraction;
 
 public interface IIdempotencyService
 {
-    void Set(HttpRequest request, HttpStatusCode responseCode, object requestBody, string? responseBody = default);
-    string? Get(string key);
-    long GenerateKey();
+    Result Set(HttpRequest request, HttpStatusCode responseCode, object requestBody, string? responseBody = default);
+    Result<string?> Get(string key);
+    Result<long> GenerateKey();
 }

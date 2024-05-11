@@ -38,7 +38,12 @@ public class CustomerController:ControllerBase
         var key = Request.Headers["Idempotency-key"].ToString();
 
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = _accountService.UpdateCustomer(customerId, customer);
             if (result.IsFailed)
@@ -61,7 +66,12 @@ public class CustomerController:ControllerBase
         var key = Request.Headers["Idempotency-key"].ToString();
 
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = await _accountService.CreateCustomerAsync(customer);
             if (result.IsFailed)
@@ -84,7 +94,12 @@ public class CustomerController:ControllerBase
         var key = Request.Headers["Idempotency-key"].ToString();
 
         var idempotencyResult = _idempotencyService.Get(key);
-        if (idempotencyResult == null)
+        if (idempotencyResult.IsFailed)
+        {
+            return BadRequest(idempotencyResult.Reasons);
+        }
+        
+        if (idempotencyResult.Value == null)
         {
             var result = await _accountService.DeleteCustomerAsync(customerId);
             if (result.IsFailed)
