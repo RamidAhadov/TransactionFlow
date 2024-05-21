@@ -17,6 +17,10 @@
       <Content Include="obj\TransactionFlow.Entities.csproj.nuget.dgspec.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Include="obj\Debug\net7.0\.NETCoreApp,Version=v7.0.AssemblyAttributes.cs" />
+    </ItemGroup>
+
 <!--    <ItemGroup>-->
 <!--      <Compile Include="obj\Debug\net7.0\.NETCoreApp,Version=v7.0.AssemblyAttributes.cs" />-->
 <!--    </ItemGroup>-->
