@@ -1,6 +1,6 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using log4net.Config;
+using NLog.Extensions.Logging;
 using TransactionFlow.BillingSystem.DependencyResolvers.Autofac;
 using TransactionFlow.BillingSystem.Utilities.AutoMapper;
 
@@ -21,7 +21,13 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
         builder.RegisterModule(new AutofacBusinessModule());
     });
 
-//builder.Services.AddLog4Net();
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.ClearProviders();
+    loggingBuilder.AddNLog(
+        @"C:\\Users\\ASUS\\RiderProjects\\TransactionFlow\\TransactionFlow.BillingSystem\\nlog.config");
+});
+
 
 var app = builder.Build();
 
@@ -31,8 +37,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-//XmlConfigurator.Configure(new FileInfo("log4net.config"));
 
 app.UseHttpsRedirection();
 
