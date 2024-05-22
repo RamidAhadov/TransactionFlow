@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using AutoMapper;
 using FluentResults;
+using Microsoft.Identity.Client;
 using NLog;
 using NuGet.Protocol;
 using TransactionFlow.Business.Abstraction;
@@ -8,6 +9,7 @@ using TransactionFlow.Business.Models;
 using TransactionFlow.Core.Constants;
 using TransactionFlow.DataAccess.Abstraction;
 using TransactionFlow.Entities.Concrete;
+using Logger = NLog.Logger;
 
 namespace TransactionFlow.Business.Concrete;
 
@@ -48,7 +50,7 @@ public class CustomerAccountManager:IAccountManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAccount), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAccount), Message = exception.InnerException?.Message ?? exception.Message, CustomerId = customerModel.Id}.ToJson());
             
             return Result.Fail(ErrorMessages.AccountNotCreated);
         }
@@ -76,7 +78,7 @@ public class CustomerAccountManager:IAccountManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAccountAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAccountAsync), Message = exception.InnerException?.Message ?? exception.Message, CustomerId = customerModel.Id}.ToJson());
             
             return Result.Fail(ErrorMessages.AccountNotCreated);
         }
@@ -88,13 +90,13 @@ public class CustomerAccountManager:IAccountManager
         try
         {
             var accounts = await GetAccountListAsync(customerId);
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsAsync), Message = "Customer account list retrieved.", accounts.Count }.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsAsync), Message = "Customer account list retrieved.", accounts.Count , CustomerId = customerId}.ToJson());
 
             return Result.Ok(accounts);
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsAsync), Message = exception.InnerException?.Message ?? exception.Message, CustomerId = customerId}.ToJson());
             
             return Result.Fail(ErrorMessages.AccountsNotFound);
         }
@@ -129,18 +131,18 @@ public class CustomerAccountManager:IAccountManager
             var accounts = await GetAccountListAsync(customerId);
             if (accounts == null || accounts.Count == 0)
             {
-                _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsByAccountAsync), Message = ErrorMessages.AccountsNotFound}.ToJson());
+                _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsByAccountAsync), Message = ErrorMessages.AccountsNotFound, AccountId = accountId}.ToJson());
                 
                 return Result.Fail(ErrorMessages.AccountNotFound);
             }
             
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsByAccountAsync), Message = "Customer's accounts retrieved.", accounts.Count}.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsByAccountAsync), Message = "Customer's accounts retrieved.", accounts.Count, CustomerId = customerId}.ToJson());
             
             return Result.Ok(accounts);
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsByAccountAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccountsByAccountAsync), Message = exception.InnerException?.Message ?? exception.Message, AccountId = accountId}.ToJson());
             
             return Result.Fail(ErrorMessages.AccountsNotFound);
         }
@@ -158,7 +160,7 @@ public class CustomerAccountManager:IAccountManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(DeleteAccountAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(DeleteAccountAsync), Message = exception.InnerException?.Message ?? exception.Message, accountModel.AccountId}.ToJson());
             return Result.Fail(ErrorMessages.AccountNotDeleted);
         }
     }
@@ -185,7 +187,7 @@ public class CustomerAccountManager:IAccountManager
         var sw = Stopwatch.StartNew();
         if (accountId <= 0)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccount), Message = "Given ID is less than zero."}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccount), Message = "Given ID is less than zero.", AccountId = accountId}.ToJson());
             
             return Result.Fail(ErrorMessages.IndexOutOfTheRange);
         }
@@ -197,14 +199,14 @@ public class CustomerAccountManager:IAccountManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccount), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccount), Message = exception.InnerException?.Message ?? exception.Message, AccountId = accountId}.ToJson());
             
             return Result.Fail(ErrorMessages.AccountNotFound);
         }
 
         if (accountModel == null)
         {
-            _logger.Warn(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccount), Message = ErrorMessages.AccountNotFound}.ToJson());
+            _logger.Warn(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetAccount), Message = ErrorMessages.AccountNotFound, AccountId = accountId}.ToJson());
             
             return Result.Fail(ErrorMessages.AccountNotFound);
         }
@@ -220,13 +222,13 @@ public class CustomerAccountManager:IAccountManager
         try
         {
             await _customerAccountDal.ChangeMainAccountAsync(customerAccountModel.CustomerId);
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ChangeMainAccountAsync), Message = $"Customer's main account changed to account with ID {customerAccountModel.AccountId}."}.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ChangeMainAccountAsync), Message = $"Customer's main account changed to account with ID {customerAccountModel.AccountId}.", customerAccountModel.CustomerId}.ToJson());
             
             return Result.Ok();
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ChangeMainAccountAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ChangeMainAccountAsync), Message = exception.InnerException?.Message ?? exception.Message, customerAccountModel.AccountId}.ToJson());
             
             return Result.Fail(ErrorMessages.OperationFailed);
         }
@@ -244,7 +246,7 @@ public class CustomerAccountManager:IAccountManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(TransferToMainAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(TransferToMainAsync), Message = exception.InnerException?.Message ?? exception.Message, TransactionId = transactionModel.Id}.ToJson());
             
             return Result.Fail(ErrorMessages.TransferFailed);
         }
@@ -257,13 +259,13 @@ public class CustomerAccountManager:IAccountManager
         {
             accountModel.IsActive = false;
             await _customerAccountDal.UpdateAsync(_mapper.Map<CustomerAccount>(accountModel));
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(DeactivateAccountAsync), Message = $"Deactivated account with ID: {accountModel.AccountId}"}.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(DeactivateAccountAsync), Message = $"Deactivated account with ID: {accountModel.AccountId}", accountModel.CustomerId}.ToJson());
             
             return Result.Ok();
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(DeactivateAccountAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(DeactivateAccountAsync), Message = exception.InnerException?.Message ?? exception.Message, accountModel.AccountId, accountModel.CustomerId}.ToJson());
             
             return Result.Fail(ErrorMessages.OperationFailed);
         }
@@ -275,7 +277,8 @@ public class CustomerAccountManager:IAccountManager
         try
         {
             await _customerAccountDal.UpdateRangeAsync(_mapper.Map<List<CustomerAccount>>(accountModels));
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(DeactivateAccountAsync), Message = $"{accountModels.Count} accounts deactivated."}.ToJson());
+            int[] accountIds = accountModels.Select(am => am.AccountId).ToArray();
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(DeactivateAccountAsync), Message = $"{accountModels.Count} accounts deactivated.",Accounts = accountIds.ToJson()}.ToJson());
             
             return Result.Ok();
         }
@@ -300,7 +303,7 @@ public class CustomerAccountManager:IAccountManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ActivateAccountAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ActivateAccountAsync), Message = exception.InnerException?.Message ?? exception.Message, accountModel.AccountId, accountModel.CustomerId}.ToJson());
             
             return Result.Fail(ErrorMessages.OperationFailed);
         }
@@ -312,13 +315,13 @@ public class CustomerAccountManager:IAccountManager
         try
         {
             await _customerAccountDal.TransferAsync(_mapper.Map<TransactionDetails>(transactionModel));
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(TransferMoneyAsync), Message = $"Transferred between {transactionModel.SenderAccountId} and {transactionModel.ReceiverAccountId}."}.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(TransferMoneyAsync), Message = $"Transferred between {transactionModel.SenderAccountId} and {transactionModel.ReceiverAccountId}.", TransactionId = transactionModel.Id}.ToJson());
             
             return Result.Ok();
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(TransferMoneyAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(TransferMoneyAsync), Message = exception.InnerException?.Message ?? exception.Message, TransactionId = transactionModel.Id}.ToJson());
             
             return Result.Fail(ErrorMessages.TransferFailed);
         }

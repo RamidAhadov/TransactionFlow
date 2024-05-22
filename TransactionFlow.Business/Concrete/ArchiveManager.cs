@@ -39,7 +39,7 @@ public class ArchiveManager:IArchiveManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ArchiveCustomerAndAccountsAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ArchiveCustomerAndAccountsAsync), Message = exception.InnerException?.Message ?? exception.Message, customerArchiveModel.CustomerId}.ToJson());
             
             return Result.Fail(ErrorMessages.ArchiveFailed);
         }
@@ -57,7 +57,7 @@ public class ArchiveManager:IArchiveManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ArchiveAccountAsync), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ArchiveAccountAsync), Message = exception.InnerException?.Message ?? exception.Message, accountArchiveModel.CustomerId,accountArchiveModel.AccountId}.ToJson());
             
             return Result.Fail(ErrorMessages.ArchiveFailed);
         }

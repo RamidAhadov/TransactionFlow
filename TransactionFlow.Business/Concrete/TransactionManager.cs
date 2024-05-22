@@ -187,7 +187,7 @@ public class TransactionManager:ITransactionManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ReceivedAccountTransactions), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(ReceivedAccountTransactions), Message = exception.InnerException?.Message ?? exception.Message, AccountId = accountId}.ToJson());
             
             return Result.Fail(ErrorMessages.CannotGetTransactions);
         }
@@ -206,7 +206,7 @@ public class TransactionManager:ITransactionManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(SentAccountTransactions), Message = exception.InnerException?.Message ?? exception.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(SentAccountTransactions), Message = exception.InnerException?.Message ?? exception.Message, AccountId = accountId}.ToJson());
             
             return Result.Fail(ErrorMessages.CannotGetTransactions);
         }
