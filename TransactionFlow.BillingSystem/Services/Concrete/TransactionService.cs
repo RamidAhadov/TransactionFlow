@@ -1,5 +1,7 @@
 using AutoMapper;
 using FluentResults;
+using NLog;
+using NuGet.Protocol;
 using TransactionFlow.BillingSystem.Services.Abstraction;
 using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Business.Models;
@@ -9,9 +11,10 @@ namespace TransactionFlow.BillingSystem.Services.Concrete;
 
 public class TransactionService:ITransactionService
 {
-    private ITransactionManager _transactionManager;
-    private ICustomerManager _customerManager;
-    private IMapper _mapper;
+    private readonly ITransactionManager _transactionManager;
+    private readonly ICustomerManager _customerManager;
+    private readonly IMapper _mapper;
+    private readonly Logger _logger;
 
     public TransactionService(
         ITransactionManager transactionManager, 
@@ -21,6 +24,7 @@ public class TransactionService:ITransactionService
         _transactionManager = transactionManager;
         _customerManager = customerManager;
         _mapper = mapper;
+        _logger = LogManager.GetLogger("TransactionServiceLogger");
     }
 
     public Result<List<TransactionModel>> GetTransactions(int count)
@@ -28,8 +32,11 @@ public class TransactionService:ITransactionService
         var transactionResult = _transactionManager.GetTransactions(count);
         if (transactionResult.IsFailed)
         {
+            _logger.Error(new {Message = transactionResult.Errors,Method = nameof(GetTransactions)}.ToJson());
+            
             return Result.Fail(transactionResult.Errors);
         }
+        _logger.Info(new {Message = "Transactions retrieved.",Method = nameof(GetTransactions), Transactions = transactionResult.Value.ToJson()}.ToJson());
         
         return Result.Ok(transactionResult.Value);
     }
@@ -40,11 +47,15 @@ public class TransactionService:ITransactionService
         var sentTransactionsResult = _transactionManager.GetSentAccountTransactions(accountId, count);
         if (sentTransactionsResult.IsFailed)
         {
+            _logger.Error(new {Message = sentTransactionsResult.Errors, Method = nameof(GetAccountTransactions), AccountId = accountId}.ToJson());
+            
             return Result.Fail(sentTransactionsResult.Errors);
         }
         var receivedTransactionsResult = _transactionManager.GetReceivedAccountTransactions(accountId, count);
         if (receivedTransactionsResult.IsFailed)
         {
+            _logger.Error(new {Message = receivedTransactionsResult.Errors, Method = nameof(GetAccountTransactions), AccountId = accountId}.ToJson());
+            
             return Result.Fail(receivedTransactionsResult.Errors);
         }
         
@@ -60,11 +71,14 @@ public class TransactionService:ITransactionService
         
         if (allTransactions.Count == 0)
         {
+            _logger.Info(new {Message = "There are not any transactions.", Method = nameof(GetAccountTransactions), AccountId = accountId}.ToJson());
+            
             return Result.Fail(InfoMessages.ZeroTransactionFound);
         }
         
         allTransactions.Sort((a,b)=>b.Id.CompareTo(a.Id));
         RemoveDuplicates(ref allTransactions);
+        _logger.Info(new {Message = "Transactions retrieved.", Method = nameof(GetAccountTransactions), AccountId = accountId, Transactions = allTransactions.ToJson()}.ToJson());
         
         return Result.Ok(allTransactions);
     }
@@ -74,13 +88,17 @@ public class TransactionService:ITransactionService
         var transactionsResult = _transactionManager.GetSentAccountTransactions(accountId, count);
         if (transactionsResult.Value.Count == 0)
         {
+            _logger.Error(new {Message = transactionsResult.Errors, Method = nameof(GetSentAccountTransactions), AccountId = accountId}.ToJson());
             return Result.Fail(InfoMessages.ZeroTransactionFound);
         }
         
         if (transactionsResult.IsFailed)
         {
+            _logger.Error(new {Message = transactionsResult.Errors, Method = nameof(GetSentAccountTransactions), AccountId = accountId}.ToJson());
+            
             return Result.Fail(transactionsResult.Errors);
         }
+        _logger.Info(new {Message = "Transactions retrieved.", Method = nameof(GetSentAccountTransactions), AccountId = accountId, Transactions = transactionsResult.Value.ToJson()}.ToJson());
         
         return Result.Ok(transactionsResult.Value);
     }
@@ -90,13 +108,18 @@ public class TransactionService:ITransactionService
         var transactionsResult = _transactionManager.GetReceivedAccountTransactions(accountId, count);
         if (transactionsResult.Value.Count == 0)
         {
+            _logger.Error(new {Message = transactionsResult.Errors, Method = nameof(GetReceivedAccountTransactions), AccountId = accountId}.ToJson());
+            
             return Result.Fail(InfoMessages.ZeroTransactionFound);
         }
         
         if (transactionsResult.IsFailed)
         {
+            _logger.Error(new {Message = transactionsResult.Errors, Method = nameof(GetReceivedAccountTransactions), AccountId = accountId}.ToJson());
+            
             return Result.Fail(transactionsResult.Errors);
         }
+        _logger.Info(new {Message = "Transactions retrieved", Method = nameof(GetReceivedAccountTransactions), AccountId = accountId, Transactions = transactionsResult.Value.ToJson()}.ToJson());
         
         return Result.Ok(transactionsResult.Value);
     }
@@ -106,6 +129,8 @@ public class TransactionService:ITransactionService
         var customerResult = _customerManager.GetCustomerWithAccounts(customerId);
         if (customerResult.IsFailed)
         {
+            _logger.Error(new {Message = customerResult.Errors, Method = nameof(GetCustomerTransactions), CustomerId = customerId}.ToJson());
+            
             return Result.Fail(customerResult.Errors);
         }
         
@@ -113,11 +138,15 @@ public class TransactionService:ITransactionService
         var sentTransactionsResult = _transactionManager.GetSentTransactions(customerResult.Value.Accounts, count);
         if (sentTransactionsResult.IsFailed)
         {
+            _logger.Error(new {Message = sentTransactionsResult.Errors, Method = nameof(GetCustomerTransactions), CustomerId = customerId}.ToJson());
+
             return Result.Fail(sentTransactionsResult.Errors);
         }
         var receivedTransactionsResult = _transactionManager.GetReceivedTransactions(customerResult.Value.Accounts, count);
         if (receivedTransactionsResult.IsFailed)
         {
+            _logger.Error(new {Message = receivedTransactionsResult.Errors, Method = nameof(GetCustomerTransactions), CustomerId = customerId}.ToJson());
+
             return Result.Fail(receivedTransactionsResult.Errors);
         }
 
@@ -133,11 +162,14 @@ public class TransactionService:ITransactionService
         
         if (allTransactions.Count == 0)
         {
+            _logger.Info(new {Message = "There are not any transactions.", Method = nameof(GetCustomerTransactions), CustomerId = customerId}.ToJson());
+
             return Result.Fail(InfoMessages.ZeroTransactionFound);
         }
         
         allTransactions.Sort((a,b)=>b.Id.CompareTo(a.Id));
         RemoveDuplicates(ref allTransactions);
+        _logger.Info(new {Message = "Transactions retrieved", Method = nameof(GetCustomerTransactions), CustomerId = customerId, Transactions = allTransactions.ToJson()}.ToJson());
         
         return Result.Ok(allTransactions);
     }
@@ -147,6 +179,8 @@ public class TransactionService:ITransactionService
         var customerResult = _customerManager.GetCustomerWithAccounts(customerId);
         if (customerResult.IsFailed)
         {
+            _logger.Error(new {Message = customerResult.Errors, Method = nameof(GetSentTransactions), CustomerId = customerId}.ToJson());
+
             return Result.Fail(customerResult.Errors);
         }
 
@@ -154,13 +188,18 @@ public class TransactionService:ITransactionService
         var transactionsResult = _transactionManager.GetSentTransactions(accountsModel, count);
         if (transactionsResult.Value.Count == 0)
         {
+            _logger.Info(new {Message = "There are not any transactions.", Method = nameof(GetSentTransactions), CustomerId = customerId}.ToJson());
+
             return Result.Fail(InfoMessages.ZeroTransactionFound);
         }
         
         if (transactionsResult.IsFailed)
         {
+            _logger.Error(new {Message = transactionsResult.Errors, Method = nameof(GetSentTransactions), CustomerId = customerId}.ToJson());
+
             return Result.Fail(transactionsResult.Errors);
         }
+        _logger.Error(new {Message = "Transactions retrieved.", Method = nameof(GetSentTransactions), CustomerId = customerId, Transactions = transactionsResult.Value.ToJson()}.ToJson());
         
         return Result.Ok(transactionsResult.Value);
     }
@@ -170,6 +209,8 @@ public class TransactionService:ITransactionService
         var customerResult = _customerManager.GetCustomerWithAccounts(customerId);
         if (customerResult.IsFailed)
         {
+            _logger.Error(new {Message = customerResult.Errors, Method = nameof(GetReceivedTransactions), CustomerId = customerId}.ToJson());
+
             return Result.Fail(customerResult.Errors);
         }
 
@@ -177,13 +218,18 @@ public class TransactionService:ITransactionService
         var transactionsResult = _transactionManager.GetReceivedTransactions(accountsModel, count);
         if (transactionsResult.Value.Count == 0)
         {
+            _logger.Info(new {Message = "There are not any transactions.", Method = nameof(GetReceivedTransactions), CustomerId = customerId}.ToJson());
+
             return Result.Fail(InfoMessages.ZeroTransactionFound);
         }
         
         if (transactionsResult.IsFailed)
         {
+            _logger.Error(new {Message = transactionsResult.Errors, Method = nameof(GetReceivedTransactions), CustomerId = customerId}.ToJson());
+
             return Result.Fail(transactionsResult.Errors);
         }
+        _logger.Info(new {Message = "Transactions retrieved.", Method = nameof(GetReceivedTransactions), CustomerId = customerId, Transactions = transactionsResult.Value.ToJson()}.ToJson());
         
         return Result.Ok(transactionsResult.Value);
     }

@@ -28,7 +28,7 @@ public class CustomerAccountManager:IAccountManager
         _logger = LogManager.GetLogger("CustomerAccountManagerLogger");
     }
 
-    public Result CreateAccount(CustomerModel customerModel)
+    public Result<CustomerAccountModel> CreateAccount(CustomerModel customerModel)
     {
         var sw = Stopwatch.StartNew();
         var accountModel = new CustomerAccountModel
@@ -45,8 +45,8 @@ public class CustomerAccountManager:IAccountManager
             var newAccount = _mapper.Map<CustomerAccount>(accountModel);
             _customerAccountDal.Add(newAccount);
             _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAccount), Message = "Customer account created.", Account = newAccount.ToJson() }.ToJson());
-            
-            return Result.Ok();
+
+            return Result.Ok(_mapper.Map<CustomerAccountModel>(newAccount));
         }
         catch (Exception exception)
         {
