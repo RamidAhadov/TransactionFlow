@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using AutoMapper;
 using FluentResults;
+using NLog;
 using NuGet.Protocol;
 using TransactionFlow.BillingSystem.Models.Dtos;
 using TransactionFlow.BillingSystem.Services.Abstraction;
@@ -16,16 +18,19 @@ public class IdempotencyService:IIdempotencyService
     private readonly IIdempotencyManager _idempotencyManager;
     private readonly IMapper _mapper;
     private readonly ConcurrentDictionary<long, object> _locks = new();
+    private readonly Logger _logger;
 
     public IdempotencyService(IIdempotencyManager idempotencyManager, IMapper mapper)
     {
         _idempotencyManager = idempotencyManager;
         _mapper = mapper;
+        _logger = LogManager.GetLogger("IdempotencyServiceLogger");
     }
 
     public Result Set(HttpRequest request, HttpStatusCode responseCode, object requestBody,
         string? responseBody = default)
     {
+        var sw = Stopwatch.StartNew();
         var headerKey = request.Headers["Idempotency-key"].ToString();
         if (long.TryParse(headerKey, out long key))
         {
@@ -38,24 +43,30 @@ public class IdempotencyService:IIdempotencyService
                 ResponseCode = (int)responseCode,
                 ResponseBody = responseBody
             };
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Key created.", Method = nameof(Set), Key = idempotencyKey.ToJson() }.ToJson());
         
             lock (GetLockObject(key))
             {
                 var setResult = _idempotencyManager.SetKey(_mapper.Map<IdempotencyKeyModel>(idempotencyKey));
                 if (setResult.IsFailed)
                 {
+                    _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = setResult.Errors, Method = nameof(Set),Key = idempotencyKey.ToJson()}.ToJson());
+                    
                     return Result.Fail(setResult.Errors);
                 }
+                _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Key set.", Method = nameof(Set), Key = idempotencyKey.ToJson()}.ToJson());
                 
                 return Result.Ok();
             }
         }
-        
+        _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Key format is not correct.", Method = nameof(Set),Key = headerKey}.ToJson());
+
         return Result.Fail(ErrorMessages.WrongKeyFormat);
     }
 
     public Result<string?> Get(string input)
     {
+        var sw = Stopwatch.StartNew();
         if (long.TryParse(input, out long key))
         {
             lock (GetLockObject(key))
@@ -66,6 +77,7 @@ public class IdempotencyService:IIdempotencyService
                     var idempotencyKey = _mapper.Map<IdempotencyKeyDto>(keyResult.Value);
                     if (idempotencyKey != null)
                     {
+                        _logger.Warn(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Key already exists.", Method = nameof(Get), Key = input}.ToJson());
                         if (idempotencyKey.ResponseBody == null)
                         {
                             return Result.Ok(string.Empty);
@@ -74,20 +86,26 @@ public class IdempotencyService:IIdempotencyService
                         return Result.Ok(idempotencyKey.ResponseBody);
                     }
                 }
+                _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Key was not exist in the base.", Method = nameof(Get), Key = input}.ToJson());
 
                 return Result.Ok();
             }
         }
+        _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Key format is not correct.", Method = nameof(Set),Key = input}.ToJson());
 
         return Result.Fail(ErrorMessages.WrongKeyFormat);
     }
     public Result<long> GenerateKey()
     {
+        var sw = Stopwatch.StartNew();
         var keyResult = _idempotencyManager.GenerateNewKey();
         if (keyResult.IsFailed)
         {
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = keyResult.Errors, Method = nameof(GenerateKey)}.ToJson());
+            
             return Result.Fail(keyResult.Errors);
         }
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Key created.", Method = nameof(GenerateKey), Key = keyResult.Value}.ToJson());
 
         return Result.Ok(keyResult.Value);
     }

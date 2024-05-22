@@ -39,7 +39,7 @@ public class IdempotencyManager:IIdempotencyManager
         }
         catch (SqlException sqlException)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(SetKey), Message = sqlException.InnerException?.Message ?? sqlException.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(SetKey), Message = sqlException.InnerException?.Message ?? sqlException.Message, Key = key}.ToJson());
             
             return Result.Fail(ErrorMessages.IdempotencyKeyNotSet);
         }
@@ -55,7 +55,7 @@ public class IdempotencyManager:IIdempotencyManager
         }
         catch (SqlException sqlException)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetValueByKey), Message = sqlException.InnerException?.Message ?? sqlException.Message}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetValueByKey), Message = sqlException.InnerException?.Message ?? sqlException.Message, Key = key}.ToJson());
             
             return Result.Fail(ErrorMessages.IdempotencyKeySearchError);
         }

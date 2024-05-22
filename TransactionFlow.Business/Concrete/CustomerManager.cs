@@ -32,7 +32,7 @@ public class CustomerManager:ICustomerManager
         return Result.Ok(_mapper.Map<List<CustomerModel>>(_customerDal.GetList()));
     }
 
-    public Result Create(CustomerModel customer)
+    public Result Create(CustomerModel? customer)
     {
         var sw = Stopwatch.StartNew();
         if (customer == null)
@@ -44,20 +44,21 @@ public class CustomerManager:ICustomerManager
         
         try
         {
+            customer.RegisterDate = DateTime.Now;
             _customerDal.Add(_mapper.Map<Customer>(customer));
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Create), Message = "Customer created." }.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Create), Message = "Customer created.",Customer = customer.ToJson() }.ToJson());
             
             return Result.Ok();
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Create), Message = exception.InnerException?.Message ?? exception.Message }.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Create), Message = exception.InnerException?.Message ?? exception.Message, CustomerID = customer.Id }.ToJson());
             
             return Result.Fail(ErrorMessages.OperationFailed);
         }
     }
 
-    public Result Update(CustomerModel customer)
+    public Result Update(CustomerModel? customer)
     {
         var sw = Stopwatch.StartNew();
         if (customer == null)
@@ -70,13 +71,13 @@ public class CustomerManager:ICustomerManager
         try
         {
             _customerDal.Update(_mapper.Map<Customer>(customer));
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Update), Message = "Customer updated." }.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Update), Message = "Customer updated.",Customer = customer.ToJson() }.ToJson());
             
             return Result.Ok();
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Update), Message = exception.InnerException?.Message ?? exception.Message }.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Update), Message = exception.InnerException?.Message ?? exception.Message,CustomerID = customer.Id }.ToJson());
             
             return Result.Fail(ErrorMessages.OperationFailed);
         }
@@ -96,13 +97,13 @@ public class CustomerManager:ICustomerManager
         try
         {
             _customerDal.Delete(customer);
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Delete), Message = "Customer deleted." }.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Delete), Message = "Customer deleted.",CustomerID = id }.ToJson());
             
             return Result.Ok();
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Delete), Message = exception.InnerException?.Message ?? exception.Message }.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Delete), Message = exception.InnerException?.Message ?? exception.Message,CustomerID = id }.ToJson());
             
             return Result.Fail(ErrorMessages.OperationFailed);
         }
@@ -115,20 +116,20 @@ public class CustomerManager:ICustomerManager
         {
             _customerDal.Delete(_mapper.Map<Customer>(customerModel));
             
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Delete), Message = "Customer deleted." }.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Delete), Message = "Customer deleted." ,CustomerID = customerModel.Id}.ToJson());
             
             return Result.Ok();
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Delete), Message = exception.InnerException?.Message ?? exception.Message }.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Delete), Message = exception.InnerException?.Message ?? exception.Message ,CustomerID = customerModel.Id}.ToJson());
             
             return Result.Fail(ErrorMessages.OperationFailed);
         }
     }
 
     //To add a customer asynchronously.
-    public async Task<Result<CustomerModel>> CreateAsync(CustomerModel customer)
+    public async Task<Result<CustomerModel>> CreateAsync(CustomerModel? customer)
     {
         var sw = Stopwatch.StartNew();
         if (customer == null)
@@ -140,14 +141,15 @@ public class CustomerManager:ICustomerManager
 
         try
         {
+            customer.RegisterDate = DateTime.Now;
             var createdCustomer = await _customerDal.AddAsync(_mapper.Map<Customer>(customer));
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAsync), Message = "Customer created." }.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAsync), Message = "Customer created." ,Customer = createdCustomer.ToJson()}.ToJson());
             
             return Result.Ok(_mapper.Map<CustomerModel>(createdCustomer));
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAsync), Message = exception.InnerException?.Message ?? exception.Message }.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAsync), Message = exception.InnerException?.Message ?? exception.Message ,CustomerID = customer.Id}.ToJson());
             
             return Result.Fail(ErrorMessages.OperationFailed);
         }
@@ -158,7 +160,7 @@ public class CustomerManager:ICustomerManager
         var sw = Stopwatch.StartNew();
         if (id <= 0)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetCustomerById), Message = "Given ID is less than zero." }.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetCustomerById), Message = "Given ID is less than zero.",Id = id }.ToJson());
             
             return Result.Fail(ErrorMessages.IndexOutOfTheRange);
         }
@@ -167,7 +169,7 @@ public class CustomerManager:ICustomerManager
         
         if (customer == null)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetCustomerById), Message = $"{nameof(customer)} is null." }.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetCustomerById), Message = $"Customer with ID: {id} not found." }.ToJson());
             
             return Result.Fail(ErrorMessages.ObjectNotFound);
         }
@@ -183,7 +185,7 @@ public class CustomerManager:ICustomerManager
         var sw = Stopwatch.StartNew();
         if (customerId <= 0)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetCustomerWithAccounts), Message = "Given ID is less than zero." }.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetCustomerWithAccounts), Message = "Given ID is less than zero.", Id = customerId }.ToJson());
             
             return Result.Fail(ErrorMessages.IndexOutOfTheRange);
         }
@@ -200,7 +202,7 @@ public class CustomerManager:ICustomerManager
         }
         catch (Exception exception)
         {
-            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetCustomerWithAccounts), Message = exception.InnerException?.Message ?? exception.Message }.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GetCustomerWithAccounts), Message = exception.InnerException?.Message ?? exception.Message, CustomerId = customerId }.ToJson());
             
             return Result.Fail(ErrorMessages.AccountsNotFound);
         }

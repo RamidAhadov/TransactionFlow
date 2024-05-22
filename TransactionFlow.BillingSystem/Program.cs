@@ -24,8 +24,7 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 builder.Services.AddLogging(loggingBuilder =>
 {
     loggingBuilder.ClearProviders();
-    loggingBuilder.AddNLog(
-        @"C:\\Users\\ASUS\\RiderProjects\\TransactionFlow\\TransactionFlow.BillingSystem\\nlog.config");
+    loggingBuilder.AddNLog("nlog.config");
 });
 
 
