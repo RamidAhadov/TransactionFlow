@@ -44,8 +44,9 @@ public class CustomerManager:ICustomerManager
         
         try
         {
+            customer.RegisterDate = DateTime.Now;
             _customerDal.Add(_mapper.Map<Customer>(customer));
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Create), Message = "Customer created.",CustomerID = customer.Id }.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Create), Message = "Customer created.",Customer = customer.ToJson() }.ToJson());
             
             return Result.Ok();
         }
@@ -70,7 +71,7 @@ public class CustomerManager:ICustomerManager
         try
         {
             _customerDal.Update(_mapper.Map<Customer>(customer));
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Update), Message = "Customer updated.",CustomerID = customer.Id }.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(Update), Message = "Customer updated.",Customer = customer.ToJson() }.ToJson());
             
             return Result.Ok();
         }
@@ -140,8 +141,9 @@ public class CustomerManager:ICustomerManager
 
         try
         {
+            customer.RegisterDate = DateTime.Now;
             var createdCustomer = await _customerDal.AddAsync(_mapper.Map<Customer>(customer));
-            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAsync), Message = "Customer created." ,CustomerID = customer.Id}.ToJson());
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(CreateAsync), Message = "Customer created." ,Customer = createdCustomer.ToJson()}.ToJson());
             
             return Result.Ok(_mapper.Map<CustomerModel>(createdCustomer));
         }

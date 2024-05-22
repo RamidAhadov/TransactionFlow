@@ -11,7 +11,7 @@ public class CustomerModel:IBusinessModel
     public string? MiddleName { get; set; }
     public string LastName { get; set; }
     public string? Address { get; set; }
-    public DateTime RegisterDate { get; init; }
+    public DateTime RegisterDate { get; set; }
     public int MaxAllowedAccounts { get; set; }
 
     public List<CustomerAccountModel>? Accounts { get; set; }
