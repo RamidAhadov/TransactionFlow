@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AutoMapper;
 using FluentResults;
 using NLog;
@@ -37,24 +38,26 @@ public class AccountService:IAccountService
 
     public Result<List<CustomerModel>> GetAllCustomers()
     {
+        var sw = Stopwatch.StartNew();
         var customersResult = _customerManager.GetAllCustomers();
         if (customersResult.IsFailed)
         {
-            _logger.Error(new {customersResult.Errors, Method = nameof(GetAllCustomers)}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = customersResult.Errors, Method = nameof(GetAllCustomers)}.ToJson());
             
             return Result.Fail(customersResult.Errors);
         }
-        _logger.Info(new {Method = nameof(GetAllCustomers),customersResult.Value}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Customers retrieved.",Method = nameof(GetAllCustomers),customersResult.Value}.ToJson());
         
         return Result.Ok(customersResult.Value);
     }
 
     public async Task<Result> CreateCustomerAsync(CustomerDto customerDto)
     {
+        var sw = Stopwatch.StartNew();
         var customerCreateResult = await _customerManager.CreateAsync(_mapper.Map<CustomerModel>(customerDto));
         if (customerCreateResult.IsFailed)
         {
-            _logger.Error(new {customerCreateResult.Errors, Method = nameof(CreateCustomerAsync)}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = customerCreateResult.Errors, Method = nameof(CreateCustomerAsync)}.ToJson());
 
             return Result.Fail(customerCreateResult.Errors);
         }
@@ -62,38 +65,40 @@ public class AccountService:IAccountService
         var accountCreateResult = await _accountManager.CreateAccountAsync(customerCreateResult.Value);
         if (accountCreateResult.IsFailed)
         {
-            _logger.Error(new {Message = accountCreateResult.Errors, Method = nameof(CreateCustomerAsync)}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = accountCreateResult.Errors, Method = nameof(CreateCustomerAsync)}.ToJson());
             
             return Result.Fail(accountCreateResult.Errors);
         }
-        _logger.Info(new {Message = "Customer successfully created",Method = nameof(CreateCustomerAsync), CreatedCustomer = customerDto.ToJson()}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Customer successfully created",Method = nameof(CreateCustomerAsync), CreatedCustomer = customerDto.ToJson()}.ToJson());
         
         return Result.Ok();
     }
     
     public Result UpdateCustomer(int customerId, CustomerDto customerDto)
     {
+        var sw = Stopwatch.StartNew();
         var customerModel = _mapper.Map<CustomerModel>(customerDto);
         customerModel.Id = customerId;
         var updateResult = _customerManager.Update(customerModel);
         if (updateResult.IsFailed)
         {
-            _logger.Error(new {Message = updateResult.Errors,Method = nameof(UpdateCustomer), Customer = customerDto.ToJson()}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = updateResult.Errors,Method = nameof(UpdateCustomer), Customer = customerDto.ToJson()}.ToJson());
             
             return Result.Fail(updateResult.Errors);
         }
-        _logger.Info(new {Message = "Customer updated.",Method = nameof(UpdateCustomer), Customer = customerModel.ToJson()}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Customer updated.",Method = nameof(UpdateCustomer), Customer = customerModel.ToJson()}.ToJson());
         
         return Result.Ok();
     }
 
     public async Task<Result> DeleteCustomerAsync(int customerId)
     {
+        var sw = Stopwatch.StartNew();
         var getCustomerResult = _customerManager.GetCustomerWithAccounts(customerId);
         var accountIds = getCustomerResult.Value.Accounts?.Select(ca => ca.AccountId).ToArray();
         if (getCustomerResult.IsFailed)
         {
-            _logger.Error(new {getCustomerResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = getCustomerResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
             
             return Result.Fail(getCustomerResult.Errors);
         }
@@ -101,7 +106,7 @@ public class AccountService:IAccountService
         var deactivateResult = await _accountManager.DeactivateAccountAsync(getCustomerResult.Value.Accounts);
         if (deactivateResult.IsFailed)
         {
-            _logger.Error(new {deactivateResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = deactivateResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
             
             return Result.Fail(deactivateResult.Errors);
         }
@@ -111,7 +116,7 @@ public class AccountService:IAccountService
         var archiveResult = await _archiveManager.ArchiveCustomerAndAccountsAsync(customerArchiveModel);
         if (archiveResult.IsFailed)
         {
-            _logger.Error(new {archiveResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = archiveResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
             
             return Result.Fail(archiveResult.Errors);
         }
@@ -119,7 +124,7 @@ public class AccountService:IAccountService
         var customerDeleteResult = _customerManager.Delete(getCustomerResult.Value);
         if (customerDeleteResult.IsFailed)
         {
-            _logger.Error(new {customerDeleteResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = customerDeleteResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
             
             return Result.Fail(customerDeleteResult.Errors);
         }
@@ -127,28 +132,29 @@ public class AccountService:IAccountService
         var accountDeleteResult = _accountManager.DeleteAccount(getCustomerResult.Value.Accounts);
         if (accountDeleteResult.IsFailed)
         {
-            _logger.Error(new {accountDeleteResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = accountDeleteResult.Errors, Method = nameof(DeleteCustomerAsync), CustomerId = customerId}.ToJson());
             
             return Result.Fail(accountDeleteResult.Errors);
         }
-        _logger.Info(new {Message = "Customer and accounts deactivated and archived.", Method = nameof(DeleteCustomerAsync), CustomerId = customerId, Accounts = accountIds.ToJson()}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Customer and accounts deactivated and archived.", Method = nameof(DeleteCustomerAsync), CustomerId = customerId, Accounts = accountIds.ToJson()}.ToJson());
         
         return Result.Ok();
     }
 
     public Result CreateAccount(int customerId)
     {
+        var sw = Stopwatch.StartNew();
         var customerResult = _customerManager.GetCustomerWithAccounts(customerId);
         if (customerResult.IsFailed)
         {
-            _logger.Error(new {Message = customerResult.Errors, Method = nameof(CreateAccount),CustomerId = customerId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = customerResult.Errors, Method = nameof(CreateAccount),CustomerId = customerId}.ToJson());
             
             return Result.Fail(customerResult.Errors);
         }
 
         if (customerResult.Value.Accounts?.Count >= customerResult.Value.MaxAllowedAccounts)
         {
-            _logger.Error(new {Message = customerResult.Errors, Method = nameof(CreateAccount),CustomerId = customerId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = customerResult.Errors, Method = nameof(CreateAccount),CustomerId = customerId}.ToJson());
             
             return Result.Fail(ErrorMessages.MaxAllowedAccountsExceed);
         }
@@ -156,21 +162,22 @@ public class AccountService:IAccountService
         var createdAccountResult = _accountManager.CreateAccount(customerResult.Value);
         if (createdAccountResult.IsFailed)
         {
-            _logger.Error(new {Message = customerResult.Errors, Method = nameof(CreateAccount),CustomerId = customerId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = customerResult.Errors, Method = nameof(CreateAccount),CustomerId = customerId}.ToJson());
             
             return Result.Fail(createdAccountResult.Errors);
         }
-        _logger.Info(new {Message = "Account created.", CustomerId = customerId, createdAccountResult.Value.AccountId}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Account created.", CustomerId = customerId, createdAccountResult.Value.AccountId}.ToJson());
         
         return Result.Ok();
     }
 
     public async Task<Result> DeleteAccountAsync(int accountId)
     {
+        var sw = Stopwatch.StartNew();
         var accountResult = _accountManager.GetAccount(accountId);
         if (accountResult.IsFailed)
         {
-            _logger.Error(new{Message = accountResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new{Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = accountResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
             
             return Result.Fail(accountResult.Errors);
         }
@@ -180,7 +187,7 @@ public class AccountService:IAccountService
             var changeResult = await _accountManager.ChangeMainAccountAsync(accountResult.Value);
             if (changeResult.IsFailed)
             {
-                _logger.Error(new{Message = changeResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
+                _logger.Error(new{Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = changeResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
                 
                 return Result.Fail(changeResult.Errors);
             }
@@ -189,7 +196,7 @@ public class AccountService:IAccountService
         var mainAccountResult = _accountManager.GetMainAccount(accountResult.Value.CustomerId);
         if (mainAccountResult.IsFailed)
         {
-            _logger.Error(new{Message = mainAccountResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new{Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = mainAccountResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
             
             return Result.Fail(mainAccountResult.Errors);
         }
@@ -204,7 +211,7 @@ public class AccountService:IAccountService
         var transactionResult = await _transactionManager.CreateTransactionAsync(transferParticipants,accountResult.Value.Balance,default,1);
         if (transactionResult.IsFailed)
         {
-            _logger.Error(new{Message = transactionResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new{Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = transactionResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
             
             return Result.Fail(transactionResult.Errors);
         }
@@ -212,7 +219,7 @@ public class AccountService:IAccountService
         var transferResult = await _accountManager.TransferToMainAsync(transactionResult.Value);
         if (transferResult.IsFailed)
         {
-            _logger.Error(new{Message = transferResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new{Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = transferResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
             
             return Result.Fail(transferResult.Errors);
         }
@@ -221,7 +228,7 @@ public class AccountService:IAccountService
             await _archiveManager.ArchiveAccountAsync(_mapper.Map<CustomerAccountArchiveModel>(accountResult.Value));
         if (archiveResult.IsFailed)
         {
-            _logger.Error(new{Message = archiveResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new{Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = archiveResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
             
             return Result.Fail(archiveResult.Errors);
         }
@@ -229,28 +236,29 @@ public class AccountService:IAccountService
         var deleteResult = await _accountManager.DeleteAccountAsync(accountResult.Value);
         if (deleteResult.IsFailed)
         {
-            _logger.Error(new{Message = deleteResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new{Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = deleteResult.Errors,Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
             
             return Result.Fail(deleteResult.Errors);
         }
-        _logger.Info(new {Message = "Account has been deleted and archived.",Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Account has been deleted and archived.",Method = nameof(DeleteAccountAsync), AccountId = accountId}.ToJson());
 
         return Result.Ok();
     }
 
     public async Task<Result> DeactivateAccountAsync(int accountId)
     {
+        var sw = Stopwatch.StartNew();
         var accountResult = _accountManager.GetAccount(accountId);
         if (accountResult.IsFailed)
         {
-            _logger.Error(new {Message = accountResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = accountResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
             
             return Result.Fail(accountResult.Errors);
         }
 
         if (!accountResult.Value.IsActive)
         {
-            _logger.Warn(new {Message = ErrorMessages.AccountAlreadyDeactivated, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Warn(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = ErrorMessages.AccountAlreadyDeactivated, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
 
             return Result.Fail(ErrorMessages.AccountAlreadyDeactivated);
         }
@@ -260,7 +268,7 @@ public class AccountService:IAccountService
             var changeResult = await _accountManager.ChangeMainAccountAsync(accountResult.Value);
             if (changeResult.IsFailed)
             {
-                _logger.Error(new {Message = changeResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
+                _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = changeResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
 
                 return Result.Fail(changeResult.Errors);
             }
@@ -269,7 +277,7 @@ public class AccountService:IAccountService
         var mainAccountResult = _accountManager.GetMainAccount(accountResult.Value.CustomerId);
         if (mainAccountResult.IsFailed)
         {
-            _logger.Error(new {Message = mainAccountResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = mainAccountResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
 
             return Result.Fail(mainAccountResult.Errors);
         }
@@ -284,7 +292,7 @@ public class AccountService:IAccountService
         var transactionResult = await _transactionManager.CreateTransactionAsync(transferParticipants,accountResult.Value.Balance,default,1);
         if (transactionResult.IsFailed)
         {
-            _logger.Error(new {Message = transactionResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = transactionResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
 
             return Result.Fail(transactionResult.Errors);
         }
@@ -292,7 +300,7 @@ public class AccountService:IAccountService
         var transferResult = await _accountManager.TransferToMainAsync(transactionResult.Value);
         if (transferResult.IsFailed)
         {
-            _logger.Error(new {Message = transferResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = transferResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
 
             return Result.Fail(transferResult.Errors);
         }
@@ -300,28 +308,29 @@ public class AccountService:IAccountService
         var deactivateResult = await _accountManager.DeactivateAccountAsync(transferResult.Value);
         if (deactivateResult.IsFailed)
         {
-            _logger.Error(new {Message = deactivateResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = deactivateResult.Errors, Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
 
             return Result.Fail(deactivateResult.Errors);
         }
-        _logger.Info(new {Message = "Account deactivated.", Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Account deactivated.", Method = nameof(DeactivateAccountAsync), AccountId = accountId}.ToJson());
 
         return Result.Ok();
     }
 
     public async Task<Result> ActivateAccountAsync(int accountId)
     {
+        var sw = Stopwatch.StartNew();
         var accountResult = _accountManager.GetAccount(accountId);
         if (accountResult.IsFailed)
         {
-            _logger.Error(new {Message = accountResult.Errors, Method = nameof(ActivateAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = accountResult.Errors, Method = nameof(ActivateAccountAsync), AccountId = accountId}.ToJson());
 
             return Result.Fail(accountResult.Errors);
         }
 
         if (accountResult.Value.IsActive)
         {
-            _logger.Error(new {Message = ErrorMessages.AccountAlreadyActivated, Method = nameof(ActivateAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = ErrorMessages.AccountAlreadyActivated, Method = nameof(ActivateAccountAsync), AccountId = accountId}.ToJson());
             
             return Result.Fail(ErrorMessages.AccountAlreadyActivated);
         }
@@ -329,25 +338,26 @@ public class AccountService:IAccountService
         var activateResult = await _accountManager.ActivateAccountAsync(accountResult.Value);
         if (activateResult.IsFailed)
         {
-            _logger.Error(new {Message = activateResult.Errors, Method = nameof(ActivateAccountAsync), AccountId = accountId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = activateResult.Errors, Method = nameof(ActivateAccountAsync), AccountId = accountId}.ToJson());
             
             return Result.Fail(activateResult.Errors);
         }
-        _logger.Info(new {Message = "Account activated.", Method = nameof(ActivateAccountAsync), AccountId = accountId}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Account activated.", Method = nameof(ActivateAccountAsync), AccountId = accountId}.ToJson());
 
         return Result.Ok();
     }
 
     public Result<CustomerModel> GetCustomer(int customerId)
     {
+        var sw = Stopwatch.StartNew();
         var customerResult = _customerManager.GetCustomerWithAccounts(customerId);
         if (customerResult.IsFailed)
         {
-            _logger.Error(new {Message = customerResult.Errors, Method = nameof(GetCustomer), CustomerId = customerId}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = customerResult.Errors, Method = nameof(GetCustomer), CustomerId = customerId}.ToJson());
             
             return Result.Fail(customerResult.Errors);
         }
-        _logger.Error(new {Message = "Customer retrieved", Method = nameof(GetCustomer), Customer = customerResult.Value.ToJson()}.ToJson());
+        _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Customer retrieved", Method = nameof(GetCustomer), Customer = customerResult.Value.ToJson()}.ToJson());
         
         return Result.Ok(customerResult.Value);
     }

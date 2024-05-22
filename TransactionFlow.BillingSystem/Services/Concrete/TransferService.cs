@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FluentResults;
 using NLog;
 using NuGet.Protocol;
@@ -25,6 +26,7 @@ public class TransferService:ITransferService
 
     public async Task<Result> TransferMoneyAsync(TransferDto transferDto,TransferConditions conditions)
     {
+        var sw = Stopwatch.StartNew();
         Result<List<CustomerAccountModel>>? senderAccountsResult;
         Result<List<CustomerAccountModel>>? receiverAccountsResult;
         
@@ -32,14 +34,14 @@ public class TransferService:ITransferService
         
         if (senderAccountsResult.IsFailed)
         {
-            _logger.Error(new {Message = senderAccountsResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = senderAccountsResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
             
             return Result.Fail(senderAccountsResult.Errors);
         }
         
         if (receiverAccountsResult.IsFailed)
         {
-            _logger.Error(new {Message = receiverAccountsResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = receiverAccountsResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
 
             return Result.Fail(receiverAccountsResult.Errors);
         }
@@ -48,7 +50,7 @@ public class TransferService:ITransferService
         var conditionalErrorResult = ConditionErrorHandling(participantIds, conditions);
         if (conditionalErrorResult.IsFailed)
         {
-            _logger.Error(new {Message = conditionalErrorResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = conditionalErrorResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
 
             return Result.Fail(conditionalErrorResult.Errors);
         }
@@ -57,7 +59,7 @@ public class TransferService:ITransferService
             transferDto.Amount, transferDto.Fee, 2);
         if (transactionResult.IsFailed)
         {
-            _logger.Error(new {Message = transactionResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = transactionResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
 
             return Result.Fail(transactionResult.Errors);
         }
@@ -65,11 +67,11 @@ public class TransferService:ITransferService
         var transferResult = await _accountManager.TransferMoneyAsync(transactionResult.Value);
         if (transferResult.IsFailed)
         {
-            _logger.Error(new {Message = transferResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = transferResult.Errors,Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
 
             return Result.Fail(transferResult.Errors);
         }
-        _logger.Info(new {Message = "Transfer successfully completed.",Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Transfer successfully completed.",Method = nameof(TransferMoneyAsync), TransferDetails = transferDto.ToJson()}.ToJson());
         
         return Result.Ok();
     }
@@ -79,6 +81,7 @@ public class TransferService:ITransferService
     //and an object that does not belong to that class is utilized.
     private TransferParticipants GetConditionalIds(List<CustomerAccountModel> senderAccounts,List<CustomerAccountModel> receiverAccounts, TransferDto transferDto, TransferConditions conditions)
     {
+        var sw = Stopwatch.StartNew();
         var participants = new TransferParticipants();
         switch (conditions)
         {
@@ -111,7 +114,7 @@ public class TransferService:ITransferService
                 participants.ReceiverId = receiverAccounts.First().CustomerId;
                 break;
         }
-        _logger.Info(new {Message = "Participants determined.",Method = nameof(GetConditionalIds), ReceiverCustomerId = participants.ReceiverId, SenderCustomerId = participants.SenderId, participants.ReceiverAccountId, participants.SenderAccountId}.ToJson());
+        _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = "Participants determined.",Method = nameof(GetConditionalIds), ReceiverCustomerId = participants.ReceiverId, SenderCustomerId = participants.SenderId, participants.ReceiverAccountId, participants.SenderAccountId}.ToJson());
 
         return participants;
     }
