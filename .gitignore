@@ -31,3 +31,5 @@ _resharper*
 # Rider generated files
 GeneratedFiles/
 out/
+
+BenchmarkDotNet.Artifacts/
