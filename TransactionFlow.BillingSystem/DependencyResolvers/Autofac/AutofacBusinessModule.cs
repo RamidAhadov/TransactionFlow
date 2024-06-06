@@ -1,6 +1,8 @@
 using Autofac;
+using AutoMapper;
 using TransactionFlow.BillingSystem.Services.Abstraction;
 using TransactionFlow.BillingSystem.Services.Concrete;
+using TransactionFlow.BillingSystem.Utilities.AutoMapper;
 using TransactionFlow.Business.Abstraction;
 using TransactionFlow.Business.Concrete;
 using TransactionFlow.DataAccess.Abstraction;
@@ -33,5 +35,21 @@ public class AutofacBusinessModule:Module
         builder.RegisterType<AccountService>().As<IAccountService>();
         builder.RegisterType<TransactionService>().As<ITransactionService>();
         builder.RegisterType<IdempotencyService>().As<IIdempotencyService>();
+        
+        //Modules
+        builder.Register(context => new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<AutoMapperProfile>();
+        })).AsSelf().SingleInstance();
+
+        builder.Register(c => c.Resolve<MapperConfiguration>().CreateMapper(c.Resolve))
+            .As<IMapper>()
+            .InstancePerLifetimeScope();
+        
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true)
+            .Build();
+        builder.RegisterInstance(configuration).As<IConfiguration>().SingleInstance();
     }
 }
