@@ -98,7 +98,7 @@ public class IdempotencyService:IIdempotencyService
     public Result<long> GenerateKey()
     {
         var sw = Stopwatch.StartNew();
-        var keyResult = _idempotencyManager.GenerateNewKey();
+        var keyResult = _idempotencyManager.GenerateNewKeyV2();
         if (keyResult.IsFailed)
         {
             _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Message = keyResult.Errors, Method = nameof(GenerateKey)}.ToJson());
