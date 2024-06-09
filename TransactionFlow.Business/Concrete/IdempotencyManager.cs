@@ -2,6 +2,7 @@ using System.Diagnostics;
 using AutoMapper;
 using FluentResults;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using NLog;
 using NuGet.Protocol;
 using TransactionFlow.Business.Abstraction;
@@ -17,14 +18,18 @@ public class IdempotencyManager:IIdempotencyManager
     private readonly IIdempotencyDal _idempotencyDal;
     private readonly IMapper _mapper;
     private readonly Logger _logger;
+
+    private readonly long _idempotencyKeyBatchSize;
+    private long _lastProvidedKey = -1;
+    private int _provideCount;
     
-    public IdempotencyManager(IIdempotencyDal idempotencyDal, IMapper mapper)
+    public IdempotencyManager(IIdempotencyDal idempotencyDal, IMapper mapper, IConfiguration configuration)
     {
         _idempotencyDal = idempotencyDal;
         _mapper = mapper;
         _logger = LogManager.GetLogger("IdempotencyManagerLogger");
+        _idempotencyKeyBatchSize = long.Parse(configuration.GetSection("IdempotencyKeyBatchSize").Value);
     }
-
 
     public Result SetKey(IdempotencyKeyModel key)
     {
@@ -84,6 +89,39 @@ public class IdempotencyManager:IIdempotencyManager
         catch (SqlException sqlException)
         {
             _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GenerateNewKey), Message = sqlException.InnerException?.Message ?? sqlException.Message}.ToJson());
+
+            return Result.Fail(ErrorMessages.KeyNotGenerated);
+        }
+    }
+
+    public Result<long> GenerateNewKeyV2()
+    {
+        var sw = Stopwatch.StartNew();
+        try
+        {
+            if (_lastProvidedKey == -1)
+            {
+                _lastProvidedKey = _idempotencyDal.GetLastKey();
+            }
+
+            while (_provideCount < _idempotencyKeyBatchSize)
+            {
+                _provideCount++;
+                var key = _lastProvidedKey + _provideCount;
+                _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GenerateNewKeyV2), Message = "New key generated",Key = key }.ToJson());
+                
+                return key;
+            }
+
+            _provideCount = 0;
+            _lastProvidedKey = _idempotencyDal.GenerateKey();
+            _logger.Info(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GenerateNewKeyV2), Message = "New key generated",Key = _lastProvidedKey }.ToJson());
+            
+            return _lastProvidedKey;
+        }
+        catch (SqlException sqlException)
+        {
+            _logger.Error(new {Elapsed = $"{sw.ElapsedMilliseconds} ms", Method = nameof(GenerateNewKeyV2), Message = sqlException.InnerException?.Message ?? sqlException.Message}.ToJson());
 
             return Result.Fail(ErrorMessages.KeyNotGenerated);
         }
