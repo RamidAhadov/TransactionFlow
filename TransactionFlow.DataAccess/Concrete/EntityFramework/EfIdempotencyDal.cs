@@ -5,7 +5,7 @@ using TransactionFlow.Entities.Concrete;
 
 namespace TransactionFlow.DataAccess.Concrete.EntityFramework;
 
-public class EfIdempotencyDal:EfEntityRepositoryBase<IdempotencyKey,TransactionContext>,IIdempotencyDal
+public class EfIdempotencyDal : EfEntityRepositoryBase<IdempotencyKey, TransactionContext>, IIdempotencyDal
 {
     public long GenerateKey()
     {
@@ -19,6 +19,14 @@ public class EfIdempotencyDal:EfEntityRepositoryBase<IdempotencyKey,TransactionC
             context.SaveChanges();
 
             return key.Id;
+        }
+    }
+
+    public long GetLastKey()
+    {
+        using (var context = new TransactionContext())
+        {
+            return context.GeneratedKeys.OrderBy(k => k.Id).Select(k => k.Id).ToList().DefaultIfEmpty(0).Last();
         }
     }
 }
